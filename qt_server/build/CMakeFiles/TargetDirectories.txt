@@ -1,0 +1,3 @@
+/home/ivan/vs_code/qt_server/build/CMakeFiles/Qt_server.dir
+/home/ivan/vs_code/qt_server/build/CMakeFiles/edit_cache.dir
+/home/ivan/vs_code/qt_server/build/CMakeFiles/rebuild_cache.dir
