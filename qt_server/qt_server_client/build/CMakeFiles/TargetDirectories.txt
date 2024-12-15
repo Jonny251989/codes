@@ -1,0 +1,4 @@
+/home/ivan/codes/qt_server/qt_server_client/build/CMakeFiles/qt_server_client.dir
+/home/ivan/codes/qt_server/qt_server_client/build/CMakeFiles/edit_cache.dir
+/home/ivan/codes/qt_server/qt_server_client/build/CMakeFiles/rebuild_cache.dir
+/home/ivan/codes/qt_server/qt_server_client/build/CMakeFiles/qt_server_client_autogen.dir

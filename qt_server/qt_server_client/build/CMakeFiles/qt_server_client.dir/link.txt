@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/qt_server_client.dir/qt_server_client_autogen/mocs_compilation.cpp.o CMakeFiles/qt_server_client.dir/client.cpp.o CMakeFiles/qt_server_client.dir/server.cpp.o CMakeFiles/qt_server_client.dir/main.cpp.o -o qt_server_client  /usr/lib/x86_64-linux-gnu/libQt6Network.so.6.2.4 /usr/lib/x86_64-linux-gnu/libQt6Core.so.6.2.4 

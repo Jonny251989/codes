@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/Qt_game_server.dir/Qt_game_server_autogen/mocs_compilation.cpp.o CMakeFiles/Qt_game_server.dir/server.cpp.o CMakeFiles/Qt_game_server.dir/main.cpp.o -o Qt_game_server  /usr/lib/x86_64-linux-gnu/libQt6Network.so.6.2.4 /usr/lib/x86_64-linux-gnu/libQt6Core.so.6.2.4 
