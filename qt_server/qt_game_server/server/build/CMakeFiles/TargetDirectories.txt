@@ -1,4 +1,0 @@
-/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/qt_game_server.dir
-/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/edit_cache.dir
-/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/rebuild_cache.dir
-/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/qt_game_server_autogen.dir
