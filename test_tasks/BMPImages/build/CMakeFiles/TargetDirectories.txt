@@ -1,0 +1,3 @@
+F:/git_projects/test_tasks/BMPImages/build/CMakeFiles/BMPImageApp.dir
+F:/git_projects/test_tasks/BMPImages/build/CMakeFiles/ALL_BUILD.dir
+F:/git_projects/test_tasks/BMPImages/build/CMakeFiles/ZERO_CHECK.dir
