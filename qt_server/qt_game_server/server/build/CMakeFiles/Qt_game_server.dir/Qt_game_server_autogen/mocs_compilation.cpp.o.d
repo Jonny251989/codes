@@ -1,7 +1,7 @@
-CMakeFiles/Qt_game_server.dir/Qt_game_server_autogen/mocs_compilation.cpp.o: \
- /home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/mocs_compilation.cpp \
+CMakeFiles/qt_game_server.dir/qt_game_server_autogen/mocs_compilation.cpp.o: \
+ /home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/mocs_compilation.cpp \
  /usr/include/stdc-predef.h \
- /home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/EWIEGA46WW/moc_server.cpp \
+ /home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/EWIEGA46WW/moc_server.cpp \
  /usr/include/c++/11/memory /usr/include/c++/11/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -117,7 +117,7 @@ CMakeFiles/Qt_game_server.dir/Qt_game_server_autogen/mocs_compilation.cpp.o: \
  /usr/include/c++/11/backward/auto_ptr.h \
  /usr/include/c++/11/pstl/glue_memory_defs.h \
  /usr/include/c++/11/pstl/execution_defs.h \
- /home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/EWIEGA46WW/../../../server.hpp \
+ /home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/EWIEGA46WW/../../../server.hpp \
  /usr/include/x86_64-linux-gnu/qt6/QtNetwork/QTcpServer \
  /usr/include/x86_64-linux-gnu/qt6/QtNetwork/qtcpserver.h \
  /usr/include/x86_64-linux-gnu/qt6/QtNetwork/qtnetworkglobal.h \
@@ -306,7 +306,7 @@ CMakeFiles/Qt_game_server.dir/Qt_game_server_autogen/mocs_compilation.cpp.o: \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/qvector.h \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/QByteArray \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/qbytearray.h \
- /home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/EWIEGA46WW/../../../item.hpp \
+ /home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/EWIEGA46WW/../../../item.hpp \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/QString \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/qstring.h \
  /usr/include/x86_64-linux-gnu/qt6/QtCore/QDataStream \

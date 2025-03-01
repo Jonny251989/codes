@@ -1,5 +1,5 @@
-/home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/EWIEGA46WW/moc_server.cpp: /home/ivan/codes/qt_server/qt_game_server/server/server.hpp \
-  /home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/moc_predefs.h \
+/home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/EWIEGA46WW/moc_server.cpp: /home/ivan/codes/qt_server/qt_game_server/server/server.hpp \
+  /home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/moc_predefs.h \
   /home/ivan/codes/qt_server/qt_game_server/server/item.hpp \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \

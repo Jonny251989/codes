@@ -1,2 +1,2 @@
-# Empty dependencies file for Qt_game_server.
+# Empty dependencies file for qt_game_server.
 # This may be replaced when dependencies are built.

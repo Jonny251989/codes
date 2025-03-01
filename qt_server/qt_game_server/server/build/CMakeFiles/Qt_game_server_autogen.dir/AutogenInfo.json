@@ -1,5 +1,5 @@
 {
-	"BUILD_DIR" : "/home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen",
+	"BUILD_DIR" : "/home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen",
 	"CMAKE_BINARY_DIR" : "/home/ivan/codes/qt_server/qt_game_server/server/build",
 	"CMAKE_CURRENT_BINARY_DIR" : "/home/ivan/codes/qt_server/qt_game_server/server/build",
 	"CMAKE_CURRENT_SOURCE_DIR" : "/home/ivan/codes/qt_server/qt_game_server/server",
@@ -160,8 +160,8 @@
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
-	"INCLUDE_DIR" : "/home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/include",
-	"MOC_COMPILATION_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/mocs_compilation.cpp",
+	"INCLUDE_DIR" : "/home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/include",
+	"MOC_COMPILATION_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/mocs_compilation.cpp",
 	"MOC_DEFINITIONS" : [ "QT_CORE_LIB", "QT_NETWORK_LIB", "QT_NO_DEBUG" ],
 	"MOC_DEPEND_FILTERS" : 
 	[
@@ -195,17 +195,17 @@
 		"-c",
 		"/usr/share/cmake-3.22/Modules/CMakeCXXCompilerABI.cpp"
 	],
-	"MOC_PREDEFS_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/moc_predefs.h",
+	"MOC_PREDEFS_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/moc_predefs.h",
 	"MOC_RELAXED_MODE" : false,
 	"MOC_SKIP" : [],
 	"MULTI_CONFIG" : false,
 	"PARALLEL" : 4,
-	"PARSE_CACHE_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/Qt_game_server_autogen.dir/ParseCache.txt",
+	"PARSE_CACHE_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/qt_game_server_autogen.dir/ParseCache.txt",
 	"QT_MOC_EXECUTABLE" : "/usr/lib/qt6/libexec/moc",
 	"QT_UIC_EXECUTABLE" : "",
 	"QT_VERSION_MAJOR" : 6,
 	"QT_VERSION_MINOR" : 2,
-	"SETTINGS_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/Qt_game_server_autogen.dir/AutogenUsed.txt",
+	"SETTINGS_FILE" : "/home/ivan/codes/qt_server/qt_game_server/server/build/CMakeFiles/qt_game_server_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
 		[

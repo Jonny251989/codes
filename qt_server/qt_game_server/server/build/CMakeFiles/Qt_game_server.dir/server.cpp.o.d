@@ -1,4 +1,4 @@
-CMakeFiles/Qt_game_server.dir/server.cpp.o: \
+CMakeFiles/qt_game_server.dir/server.cpp.o: \
  /home/ivan/codes/qt_server/qt_game_server/server/server.cpp \
  /usr/include/stdc-predef.h \
  /home/ivan/codes/qt_server/qt_game_server/server/server.hpp \

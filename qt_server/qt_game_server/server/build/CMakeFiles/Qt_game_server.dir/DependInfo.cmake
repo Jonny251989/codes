@@ -8,9 +8,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/ivan/codes/qt_server/qt_game_server/server/build/Qt_game_server_autogen/mocs_compilation.cpp" "CMakeFiles/Qt_game_server.dir/Qt_game_server_autogen/mocs_compilation.cpp.o" "gcc" "CMakeFiles/Qt_game_server.dir/Qt_game_server_autogen/mocs_compilation.cpp.o.d"
-  "/home/ivan/codes/qt_server/qt_game_server/server/main.cpp" "CMakeFiles/Qt_game_server.dir/main.cpp.o" "gcc" "CMakeFiles/Qt_game_server.dir/main.cpp.o.d"
-  "/home/ivan/codes/qt_server/qt_game_server/server/server.cpp" "CMakeFiles/Qt_game_server.dir/server.cpp.o" "gcc" "CMakeFiles/Qt_game_server.dir/server.cpp.o.d"
+  "/home/ivan/codes/qt_server/qt_game_server/server/main.cpp" "CMakeFiles/qt_game_server.dir/main.cpp.o" "gcc" "CMakeFiles/qt_game_server.dir/main.cpp.o.d"
+  "/home/ivan/codes/qt_server/qt_game_server/server/build/qt_game_server_autogen/mocs_compilation.cpp" "CMakeFiles/qt_game_server.dir/qt_game_server_autogen/mocs_compilation.cpp.o" "gcc" "CMakeFiles/qt_game_server.dir/qt_game_server_autogen/mocs_compilation.cpp.o.d"
+  "/home/ivan/codes/qt_server/qt_game_server/server/server.cpp" "CMakeFiles/qt_game_server.dir/server.cpp.o" "gcc" "CMakeFiles/qt_game_server.dir/server.cpp.o.d"
   )
 
 # Targets to which this target links.
