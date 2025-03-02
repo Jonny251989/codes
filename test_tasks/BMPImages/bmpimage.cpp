@@ -56,10 +56,10 @@ void BMPImage::writeBMP(const std::string& filename) const {
         throw std::runtime_error("Could not create file: " + filename);
     }
 
-    auto [fileHeader, infoHeader] = createHeaders();
+    HEADERS headers = createHeaders();
 
-    file.write(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
-    file.write(reinterpret_cast<char*>(&infoHeader), sizeof(infoHeader));
+    file.write(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
+    file.write(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
 
     int rowSize = (width * sizeof(RGBTRIPLE) + 3) & (~3);
 
@@ -76,22 +76,24 @@ void BMPImage::writeBMP(const std::string& filename) const {
 }
 
 // make header's BMP
-std::pair<BITMAPFILEHEADER, BITMAPINFOHEADER> BMPImage::createHeaders() const {
-    BITMAPFILEHEADER fileHeader = {0};
-    BITMAPINFOHEADER infoHeader = {0};
+BMPImage::HEADERS BMPImage::createHeaders() const {
 
-    fileHeader.bfType = bmpType;
-    fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * sizeof(RGBTRIPLE);
-    fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+    HEADERS headers;
+    headers.fileHeader = {0};
+    headers.infoHeader = {0};
 
-    infoHeader.biSize = sizeof(BITMAPINFOHEADER);
-    infoHeader.biWidth = width;
-    infoHeader.biHeight = height;
-    infoHeader.biPlanes = 1;
-    infoHeader.biBitCount = 24; // 24 бита на пиксель
-    infoHeader.biCompression = BI_RGB; // Без сжатия
+    headers.fileHeader.bfType = bmpType;
+    headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * sizeof(RGBTRIPLE);
+    headers.fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
-    return {fileHeader, infoHeader};
+    headers.infoHeader.biSize = sizeof(BITMAPINFOHEADER);
+    headers.infoHeader.biWidth = width;
+    headers.infoHeader.biHeight = height;
+    headers.infoHeader.biPlanes = 1;
+    headers.infoHeader.biBitCount = 24; // 24 бита на пиксель
+    headers.infoHeader.biCompression = BI_RGB; // Без сжатия
+
+    return  headers;
 }
 
 void BMPImage::display() const {

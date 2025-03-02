@@ -22,10 +22,14 @@ public:
     ~BMPImage() = default;
 
 private:
+    struct HEADERS {
+        BITMAPFILEHEADER fileHeader;
+        BITMAPINFOHEADER infoHeader;
+    };
 
     void readBMP(const std::string& filename);
     void writeBMP(const std::string& filename) const;
-    std::pair<BITMAPFILEHEADER, BITMAPINFOHEADER> createHeaders() const;
+    HEADERS createHeaders() const;
 
     std::vector<std::vector<RGBTRIPLE>> pixels;
     static constexpr uint16_t bmpType = 0x4D42; 
