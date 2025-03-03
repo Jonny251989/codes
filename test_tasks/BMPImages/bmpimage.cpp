@@ -1,111 +1,93 @@
-#include "bmpimage.h"
+#include "bmpimage.hpp"
 
-bool operator==(const RGBTRIPLE& lhs, const RGBTRIPLE& rhs) {
-    return lhs.rgbtBlue == rhs.rgbtBlue &&
-           lhs.rgbtGreen == rhs.rgbtGreen &&
-           lhs.rgbtRed == rhs.rgbtRed;
-}
-
-BMPImage::BMPImage(const std::string& filename) {
-    readBMP(filename);
-}
-
-void BMPImage::readBMP(const std::string& filename) {
+BMPImage::BMPImage(const std::string& filename) : bit_(0) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Could not open file: " + filename);
     }
 
-    BITMAPFILEHEADER fileHeader;
-    BITMAPINFOHEADER infoHeader;
+    HEADERS headers = {0};
+    file.read(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
+    file.read(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
 
-    file.read(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
-    file.read(reinterpret_cast<char*>(&infoHeader), sizeof(infoHeader));
-
-    if (fileHeader.bfType != bmpType) {
+    if (headers.fileHeader.bfType != bmpType) {
         throw std::runtime_error("Not a BMP file: " + filename);
     }
 
-    width = infoHeader.biWidth;
-    height = infoHeader.biHeight;
-
-    // Инициализация пикселей белым цветом
-    pixels.resize(height);
-    for (auto& row : pixels) {
-        row.resize(width);
-        std::fill(row.begin(), row.end(), WHITE);
+    bit_ = headers.infoHeader.biBitCount;
+    std::cout << "BIT: " << bit_ << "\n";
+    if (bit_ != 24 && bit_ != 32) {
+        throw std::runtime_error("Unsupported BMP bit depth: " + std::to_string(bit_));
     }
 
-    file.seekg(fileHeader.bfOffBits, std::ios::beg);
+    width = headers.infoHeader.biWidth;
+    height = headers.infoHeader.biHeight;
 
-    int rowSize = (width * sizeof(RGBTRIPLE) + 3) & (~3); // Выравнивание по 4 байта
+    pixels.resize(height, std::vector<RGBQUAD>(width));
 
-    // Чтение данных пикселей (снизу вверх)
-    for (int y = height - 1; y >= 0; --y) {
-        file.read(reinterpret_cast<char*>(pixels[y].data()), width * sizeof(RGBTRIPLE));
-        file.seekg(rowSize - width * sizeof(RGBTRIPLE), std::ios::cur);
-    }
+    file.seekg(headers.fileHeader.bfOffBits, std::ios::beg);
 
-    file.close();
-}
-
-// Запись BMP-файла
-void BMPImage::writeBMP(const std::string& filename) const {
-    std::ofstream file(filename, std::ios::binary);
-    if (!file) {
-        throw std::runtime_error("Could not create file: " + filename);
-    }
-
-    HEADERS headers = createHeaders();
-
-    file.write(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
-    file.write(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
-
-    int rowSize = (width * sizeof(RGBTRIPLE) + 3) & (~3);
-
-    // Запись данных пикселей (снизу вверх)
-    for (int y = height - 1; y >= 0; --y) {
-        file.write(reinterpret_cast<const char*>(pixels[y].data()), width * sizeof(RGBTRIPLE));
-        if (rowSize > width * sizeof(RGBTRIPLE)) {
-            char padding[3] = {0};
-            file.write(padding, rowSize - width * sizeof(RGBTRIPLE));
+    if (bit_ == 32) {
+        for (int y = height - 1; y >= 0; --y) {
+            file.read(reinterpret_cast<char*>(pixels[y].data()), width * sizeof(RGBQUAD));
+        }
+    } else {
+        int rowSize = calculateRowSize();
+        for (int y = height - 1; y >= 0; --y) {
+            for (int x = 0; x < width; ++x) {
+                RGBTRIPLE triple;
+                file.read(reinterpret_cast<char*>(&triple), sizeof(RGBTRIPLE));
+                pixels[y][x] = {triple.rgbtBlue, triple.rgbtGreen, triple.rgbtRed, 0};
+            }
+            skipPadding(file);
         }
     }
 
     file.close();
 }
 
-// make header's BMP
 BMPImage::HEADERS BMPImage::createHeaders() const {
-
     HEADERS headers;
     headers.fileHeader = {0};
     headers.infoHeader = {0};
 
     headers.fileHeader.bfType = bmpType;
-    headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * sizeof(RGBTRIPLE);
+    
+    if (bit_ == 32) {
+        headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * sizeof(RGBQUAD);
+    } else {
+        headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + calculateRowSize() * height;
+    }
+    
     headers.fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
     headers.infoHeader.biSize = sizeof(BITMAPINFOHEADER);
     headers.infoHeader.biWidth = width;
     headers.infoHeader.biHeight = height;
     headers.infoHeader.biPlanes = 1;
-    headers.infoHeader.biBitCount = 24; // 24 бита на пиксель
-    headers.infoHeader.biCompression = BI_RGB; // Без сжатия
+    headers.infoHeader.biBitCount = bit_; // Используем сохраненное значение битности
+    headers.infoHeader.biCompression = BI_RGB;
 
-    return  headers;
+    return headers;
+}
+
+int BMPImage::calculateRowSize() const {
+    if (bit_ == 32) {
+        return width * sizeof(RGBQUAD);
+    }
+    return (width * sizeof(RGBTRIPLE) + 3) & (~3);
 }
 
 void BMPImage::display() const {
     for (const auto& row : pixels) {
         for (const auto& pixel : row) {
-            std::cout << (pixel == BLACK ? "#" : " ");
+            RGBTRIPLE rgb = {pixel.rgbBlue, pixel.rgbGreen, pixel.rgbRed};
+            std::cout << (rgb == RGBTRIPLE{0, 0, 0} ? "#" : " ");
         }
         std::cout << std::endl;
     }
 }
 
-// Bresenham's algorithm for drawing lines
 void BMPImage::drawLine(int x1, int y1, int x2, int y2) {
     int dx = abs(x2 - x1);
     int dy = abs(y2 - y1);
@@ -113,8 +95,12 @@ void BMPImage::drawLine(int x1, int y1, int x2, int y2) {
     int sy = (y1 < y2) ? 1 : -1;
     int err = dx - dy;
 
-    while (x1 != x2 || y1 != y2) {
-        pixels[y1][x1] = BLACK;
+    while (true) {
+        if (x1 >= 0 && x1 < width && y1 >= 0 && y1 < height) {
+            pixels[y1][x1] = BLACK; 
+        }
+
+        if (x1 == x2 && y1 == y2) break;
 
         int e2 = 2 * err;
         if (e2 > -dy) {
@@ -126,10 +112,47 @@ void BMPImage::drawLine(int x1, int y1, int x2, int y2) {
             y1 += sy;
         }
     }
-    pixels[y1][x1] = BLACK; // last pixel
 }
 
-bool BMPImage::save(const std::string& filename) const {
-    writeBMP(filename);
-    return true;
+void BMPImage::skipPadding(std::ifstream& file) const {
+    int padding = calculateRowSize() - width * sizeof(RGBTRIPLE);
+    if (padding > 0) {
+        file.seekg(padding, std::ios::cur);
+    }
+}
+
+void BMPImage::addPadding(std::ofstream& file) const {
+    int padding = calculateRowSize() - width * sizeof(RGBTRIPLE);
+    if (padding > 0) {
+        const char zeroPadding[3] = {0};
+        file.write(zeroPadding, padding);
+    }
+}
+
+void BMPImage::save(const std::string& filename) const {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Could not create file: " + filename);
+    }
+
+    HEADERS headers = createHeaders();
+
+    file.write(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
+    file.write(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
+
+    if (bit_ == 32) {
+        for (int y = height - 1; y >= 0; --y) {
+            file.write(reinterpret_cast<const char*>(pixels[y].data()), width * sizeof(RGBQUAD));
+        }
+    } else {
+        int rowSize = calculateRowSize();
+        for (int y = height - 1; y >= 0; --y) {
+            for (int x = 0; x < width; ++x) {
+                RGBTRIPLE triple = {pixels[y][x].rgbBlue, pixels[y][x].rgbGreen, pixels[y][x].rgbRed};
+                file.write(reinterpret_cast<const char*>(&triple), sizeof(RGBTRIPLE));
+            }
+            addPadding(file);
+        }
+    }
+    file.close();
 }

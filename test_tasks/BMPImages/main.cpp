@@ -1,4 +1,4 @@
-#include "bmpimage.h"
+#include "bmpimage.hpp"
 #include "windows.h"
 #include <iostream>
 #include <fstream>
@@ -27,10 +27,8 @@ int main() {
         std::cout << "Enter output BMP file name: ";
         std::cin >> filename;
 
-        if (!image.save(filename)) {
-            std::cerr << "Failed to save the image." << std::endl;
-            return 1; 
-        }
+        image.save(filename);
+ 
         std::cout << "Image saved successfully." << std::endl;
 
     }catch (const std::runtime_error& e) {
