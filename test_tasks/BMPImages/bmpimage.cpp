@@ -5,7 +5,6 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
     if (!file) {
         throw std::runtime_error("Could not open file: " + filename);
     }
-
     HEADERS headers = {0};
     file.read(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
     file.read(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
@@ -13,18 +12,15 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
     if (headers.fileHeader.bfType != bmpType) {
         throw std::runtime_error("Not a BMP file: " + filename);
     }
-
     bit_ = headers.infoHeader.biBitCount;
     std::cout << "BIT: " << bit_ << "\n";
     if (bit_ != 24 && bit_ != 32) {
         throw std::runtime_error("Unsupported BMP bit depth: " + std::to_string(bit_));
     }
-
     width = headers.infoHeader.biWidth;
     height = headers.infoHeader.biHeight;
 
     pixels.resize(height, std::vector<RGBQUAD>(width));
-
     file.seekg(headers.fileHeader.bfOffBits, std::ios::beg);
 
     if (bit_ == 32) {
@@ -42,7 +38,6 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
             skipPadding(file);
         }
     }
-
     file.close();
 }
 
@@ -52,13 +47,11 @@ BMPImage::HEADERS BMPImage::createHeaders() const {
     headers.infoHeader = {0};
 
     headers.fileHeader.bfType = bmpType;
-    
     if (bit_ == 32) {
         headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * sizeof(RGBQUAD);
     } else {
         headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + calculateRowSize() * height;
     }
-    
     headers.fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
     headers.infoHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -72,9 +65,7 @@ BMPImage::HEADERS BMPImage::createHeaders() const {
 }
 
 int BMPImage::calculateRowSize() const {
-    if (bit_ == 32) {
-        return width * sizeof(RGBQUAD);
-    }
+    if (bit_ == 32) return width * sizeof(RGBQUAD); 
     return (width * sizeof(RGBTRIPLE) + 3) & (~3);
 }
 
