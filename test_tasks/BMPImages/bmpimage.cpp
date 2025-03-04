@@ -1,5 +1,11 @@
 #include "bmpimage.hpp"
 
+static bool operator==(const RGBTRIPLE& lhs, const RGBTRIPLE& rhs) {
+    return lhs.rgbtBlue == rhs.rgbtBlue &&
+           lhs.rgbtGreen == rhs.rgbtGreen &&
+           lhs.rgbtRed == rhs.rgbtRed;
+};
+
 BMPImage::BMPImage(const std::string& filename) : bit_(0) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
@@ -13,7 +19,6 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
         throw std::runtime_error("Not a BMP file: " + filename);
     }
     bit_ = headers.infoHeader.biBitCount;
-    std::cout << "BIT: " << bit_ << "\n";
     if (bit_ != 24 && bit_ != 32) {
         throw std::runtime_error("Unsupported BMP bit depth: " + std::to_string(bit_));
     }
@@ -38,33 +43,6 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
         }
     }
     file.close();
-}
-
-BMPImage::HEADERS BMPImage::createHeaders() const {
-    HEADERS headers = {0};
-
-    headers.fileHeader.bfType = bmpType;
-    if (bit_ == 32) 
-        headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + calculateRowSize() * height;
-    else 
-        headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + calculateRowSize() * height;
-    
-    headers.fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-
-    headers.infoHeader.biSize = sizeof(BITMAPINFOHEADER);
-    headers.infoHeader.biWidth = width;
-    headers.infoHeader.biHeight = height;
-    headers.infoHeader.biPlanes = 1;
-    headers.infoHeader.biBitCount = bit_; // Используем сохраненное значение битности
-    headers.infoHeader.biCompression = BI_RGB;
-
-    return headers;
-}
-
-int BMPImage::calculateRowSize() const {
-    if (bit_ == 32)
-        return width * sizeof(RGBQUAD); 
-    return (width * sizeof(RGBTRIPLE) + 3) & (~3);
 }
 
 void BMPImage::display() const {
@@ -103,21 +81,6 @@ void BMPImage::drawLine(int x1, int y1, int x2, int y2) {
     }
 }
 
-void BMPImage::skipPadding(std::ifstream& file) const {
-    int padding = calculateRowSize() - width * sizeof(RGBTRIPLE);
-    if (padding > 0) {
-        file.seekg(padding, std::ios::cur);
-    }
-}
-
-void BMPImage::addPadding(std::ofstream& file) const {
-    int padding = calculateRowSize() - width * sizeof(RGBTRIPLE);
-    if (padding > 0) {
-        const char zeroPadding[3] = {0};
-        file.write(zeroPadding, padding);
-    }
-}
-
 void BMPImage::save(const std::string& filename) const {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
@@ -144,4 +107,45 @@ void BMPImage::save(const std::string& filename) const {
         }
     }
     file.close();
+}
+
+void BMPImage::skipPadding(std::ifstream& file) const {
+    int padding = calculateRowSize() - width * sizeof(RGBTRIPLE);
+    if (padding > 0) {
+        file.seekg(padding, std::ios::cur);
+    }
+}
+
+void BMPImage::addPadding(std::ofstream& file) const {
+    int padding = calculateRowSize() - width * sizeof(RGBTRIPLE);
+    if (padding > 0) {
+        const char zeroPadding[3] = {0};
+        file.write(zeroPadding, padding);
+    }
+}
+
+int BMPImage::calculateRowSize() const {
+    if (bit_ == 32)
+        return width * sizeof(RGBQUAD); 
+    else
+        return (width * sizeof(RGBTRIPLE) + 3) & (~3);
+}
+
+BMPImage::HEADERS BMPImage::createHeaders() const {
+    HEADERS headers = {0};
+
+    headers.fileHeader.bfType = bmpType;
+
+    headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + calculateRowSize() * height;
+    
+    headers.fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+    headers.infoHeader.biSize = sizeof(BITMAPINFOHEADER);
+    headers.infoHeader.biWidth = width;
+    headers.infoHeader.biHeight = height;
+    headers.infoHeader.biPlanes = 1;
+    headers.infoHeader.biBitCount = bit_;
+    headers.infoHeader.biCompression = BI_RGB;
+
+    return headers;
 }

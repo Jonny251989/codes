@@ -173,9 +173,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="F:\git_projects\test_tasks\BMPImages\build\BMPImageApp.vcxproj">
-      <Project>{2746B787-1924-34EC-9E6F-3F832B366211}</Project>
-      <Name>BMPImageApp</Name>
+    <ProjectReference Include="F:\git_projects\test_tasks\BMPImages\build\bmpimageproject.vcxproj">
+      <Project>{2A63627E-1BB4-3A74-ACC3-71D70CEB6098}</Project>
+      <Name>bmpimageproject</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

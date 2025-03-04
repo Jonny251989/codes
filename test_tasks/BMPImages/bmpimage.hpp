@@ -6,20 +6,21 @@
 #include <iostream>
 #include <windows.h>
 
-inline bool operator==(const RGBTRIPLE& lhs, const RGBTRIPLE& rhs) {
-    return lhs.rgbtBlue == rhs.rgbtBlue &&
-           lhs.rgbtGreen == rhs.rgbtGreen &&
-           lhs.rgbtRed == rhs.rgbtRed;
-};
-
 class BMPImage {
     public:
-        BMPImage(const std::string& filename);
+        explicit BMPImage(const std::string& filename);
+        BMPImage(const BMPImage& other) = default;
+        BMPImage(BMPImage&& other) = default;
+
         void display() const;
         void drawLine(int x1, int y1, int x2, int y2);
         void save(const std::string& filename) const;
         int getWidth() const { return width; }
         int getHeight() const { return height; }
+
+        BMPImage& operator=(const BMPImage& other) = default;
+        BMPImage& operator=(BMPImage&& other) = default;
+
         ~BMPImage() = default;
     private:
         struct HEADERS {
@@ -32,12 +33,10 @@ class BMPImage {
         int calculateRowSize() const;
         HEADERS createHeaders() const;
 
-        std::vector<std::vector<RGBQUAD>> pixels;
-
         static constexpr uint16_t bmpType = 0x4D42; 
         static constexpr RGBQUAD BLACK = {0, 0, 0, 0}; 
-        static constexpr RGBQUAD WHITE = {255, 255, 255, 0}; 
         size_t bit_;  
         size_t width = 0;
         size_t height = 0;
+        std::vector<std::vector<RGBQUAD>> pixels;
     };

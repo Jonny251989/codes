@@ -1,6 +1,6 @@
 ^F:\GIT_PROJECTS\TEST_TASKS\BMPIMAGES\BUILD\CMAKEFILES\C3D7A0BFD80701B7F6D37A0CB07B8C2B\GENERATE.STAMP.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SF:/git_projects/test_tasks/BMPImages -BF:/git_projects/test_tasks/BMPImages/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file F:/git_projects/test_tasks/BMPImages/build/BMPImageProject.sln
+"C:\Program Files\CMake\bin\cmake.exe" -SF:/git_projects/test_tasks/BMPImages -BF:/git_projects/test_tasks/BMPImages/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file F:/git_projects/test_tasks/BMPImages/build/bmpimageproject.sln
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
