@@ -19,6 +19,7 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
         throw std::runtime_error("Not a BMP file: " + filename);
     }
     bit_ = headers.infoHeader.biBitCount;
+    std::cout<<"bit:"<<bit_<<"\n";
     if (bit_ != 24 && bit_ != 32) {
         throw std::runtime_error("Unsupported BMP bit depth: " + std::to_string(bit_));
     }
@@ -92,20 +93,18 @@ void BMPImage::save(const std::string& filename) const {
     file.write(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
     file.write(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
 
-    if (bit_ == 32) {
-        for (int y = height - 1; y >= 0; --y) {
+    for (int y = height - 1; y >= 0; --y) {
+        if (bit_ == 32) {
             file.write(reinterpret_cast<const char*>(pixels[y].data()), width * sizeof(RGBQUAD));
-        }
-    } else {
-        int rowSize = calculateRowSize();
-        for (int y = height - 1; y >= 0; --y) {
+        } else {
+            int rowSize = calculateRowSize();
             for (int x = 0; x < width; ++x) {
                 RGBTRIPLE triple = {pixels[y][x].rgbBlue, pixels[y][x].rgbGreen, pixels[y][x].rgbRed};
                 file.write(reinterpret_cast<const char*>(&triple), sizeof(RGBTRIPLE));
             }
             addPadding(file);
         }
-    }
+        }
     file.close();
 }
 

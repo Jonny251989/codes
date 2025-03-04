@@ -14,15 +14,6 @@
 # EXTERNAL cache entries
 ########################
 
-//Value Computed by CMake
-BMPImageProject_BINARY_DIR:STATIC=F:/git_projects/test_tasks/BMPImages/build
-
-//Value Computed by CMake
-BMPImageProject_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-BMPImageProject_SOURCE_DIR:STATIC=F:/git_projects/test_tasks/BMPImages
-
 //Path to a program.
 CMAKE_AR:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.38.33130/bin/Hostx64/x64/lib.exe
 
@@ -68,7 +59,7 @@ CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=/debug /INCREMENTAL
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=F:/git_projects/test_tasks/BMPImages/build/CMakeFiles/pkgRedirects
 
 //Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=C:/Program Files (x86)/BMPImageProject
+CMAKE_INSTALL_PREFIX:PATH=C:/Program Files (x86)/bmpimageproject
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.38.33130/bin/Hostx64/x64/link.exe
