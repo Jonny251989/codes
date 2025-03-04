@@ -16,7 +16,6 @@ int main() {
         BMPImage image(filename);
 
         image.display();
-        std::cout << "\n";
 
         // Draw a cross (two diagonal lines)
         image.drawLine(0, 0, image.getWidth() - 1, image.getHeight() - 1); // Line from top-left to bottom-right

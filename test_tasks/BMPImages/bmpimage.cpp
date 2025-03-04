@@ -23,35 +23,32 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
     pixels.resize(height, std::vector<RGBQUAD>(width));
     file.seekg(headers.fileHeader.bfOffBits, std::ios::beg);
 
-    if (bit_ == 32) {
-        for (int y = height - 1; y >= 0; --y) {
-            file.read(reinterpret_cast<char*>(pixels[y].data()), width * sizeof(RGBQUAD));
-        }
-    } else {
-        int rowSize = calculateRowSize();
-        for (int y = height - 1; y >= 0; --y) {
+    for (int y = height - 1; y >= 0; --y) {
+
+        if (bit_ == 32){
+            file.read(reinterpret_cast<char*>(pixels[y].data()), width * sizeof(RGBQUAD));    
+        }else{
+            int rowSize = calculateRowSize();
             for (int x = 0; x < width; ++x) {
                 RGBTRIPLE triple;
                 file.read(reinterpret_cast<char*>(&triple), sizeof(RGBTRIPLE));
                 pixels[y][x] = {triple.rgbtBlue, triple.rgbtGreen, triple.rgbtRed, 0};
             }
-            skipPadding(file);
+            skipPadding(file);         
         }
     }
     file.close();
 }
 
 BMPImage::HEADERS BMPImage::createHeaders() const {
-    HEADERS headers;
-    headers.fileHeader = {0};
-    headers.infoHeader = {0};
+    HEADERS headers = {0};
 
     headers.fileHeader.bfType = bmpType;
-    if (bit_ == 32) {
-        headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * sizeof(RGBQUAD);
-    } else {
+    if (bit_ == 32) 
         headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + calculateRowSize() * height;
-    }
+    else 
+        headers.fileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + calculateRowSize() * height;
+    
     headers.fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
     headers.infoHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -65,7 +62,8 @@ BMPImage::HEADERS BMPImage::createHeaders() const {
 }
 
 int BMPImage::calculateRowSize() const {
-    if (bit_ == 32) return width * sizeof(RGBQUAD); 
+    if (bit_ == 32)
+        return width * sizeof(RGBQUAD); 
     return (width * sizeof(RGBTRIPLE) + 3) & (~3);
 }
 
