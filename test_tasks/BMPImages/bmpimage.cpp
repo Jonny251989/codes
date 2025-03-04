@@ -34,7 +34,6 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
         if (bit_ == 32){
             file.read(reinterpret_cast<char*>(pixels[y].data()), width * sizeof(RGBQUAD));    
         }else{
-            int rowSize = calculateRowSize();
             for (int x = 0; x < width; ++x) {
                 RGBTRIPLE triple;
                 file.read(reinterpret_cast<char*>(&triple), sizeof(RGBTRIPLE));
@@ -97,7 +96,6 @@ void BMPImage::save(const std::string& filename) const {
         if (bit_ == 32) {
             file.write(reinterpret_cast<const char*>(pixels[y].data()), width * sizeof(RGBQUAD));
         } else {
-            int rowSize = calculateRowSize();
             for (int x = 0; x < width; ++x) {
                 RGBTRIPLE triple = {pixels[y][x].rgbBlue, pixels[y][x].rgbGreen, pixels[y][x].rgbRed};
                 file.write(reinterpret_cast<const char*>(&triple), sizeof(RGBTRIPLE));
