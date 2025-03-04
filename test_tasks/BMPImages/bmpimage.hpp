@@ -14,7 +14,7 @@ class BMPImage {
 
         void display() const;
         void drawLine(int x1, int y1, int x2, int y2);
-        void save(const std::string& filename) const;
+        void save(const std::string& filename);
         int getWidth() const { return width; }
         int getHeight() const { return height; }
 
@@ -27,6 +27,11 @@ class BMPImage {
             BITMAPFILEHEADER fileHeader;
             BITMAPINFOHEADER infoHeader;
         };
+        void readHeaderes(HEADERS& headers, std::ifstream& file);
+        void writeHeaderes(HEADERS& headers, std::ofstream& file);
+
+        void readPixels(std::ifstream& file);
+        void writePixels(std::ofstream& file);
 
         void skipPadding(std::ifstream& file) const;
         void addPadding(std::ofstream& file) const;

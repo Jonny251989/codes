@@ -6,20 +6,18 @@ static bool operator==(const RGBTRIPLE& lhs, const RGBTRIPLE& rhs) {
            lhs.rgbtRed == rhs.rgbtRed;
 };
 
-BMPImage::BMPImage(const std::string& filename) : bit_(0) {
+BMPImage::BMPImage(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Could not open file: " + filename);
     }
     HEADERS headers = {0};
-    file.read(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
-    file.read(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
+    readHeaderes(headers, file);
 
     if (headers.fileHeader.bfType != bmpType) {
         throw std::runtime_error("Not a BMP file: " + filename);
     }
     bit_ = headers.infoHeader.biBitCount;
-    std::cout<<"bit:"<<bit_<<"\n";
     if (bit_ != 24 && bit_ != 32) {
         throw std::runtime_error("Unsupported BMP bit depth: " + std::to_string(bit_));
     }
@@ -29,19 +27,7 @@ BMPImage::BMPImage(const std::string& filename) : bit_(0) {
     pixels.resize(height, std::vector<RGBQUAD>(width));
     file.seekg(headers.fileHeader.bfOffBits, std::ios::beg);
 
-    for (int y = height - 1; y >= 0; --y) {
-
-        if (bit_ == 32){
-            file.read(reinterpret_cast<char*>(pixels[y].data()), width * sizeof(RGBQUAD));    
-        }else{
-            for (int x = 0; x < width; ++x) {
-                RGBTRIPLE triple;
-                file.read(reinterpret_cast<char*>(&triple), sizeof(RGBTRIPLE));
-                pixels[y][x] = {triple.rgbtBlue, triple.rgbtGreen, triple.rgbtRed, 0};
-            }
-            skipPadding(file);         
-        }
-    }
+    readPixels(file);
     file.close();
 }
 
@@ -81,7 +67,7 @@ void BMPImage::drawLine(int x1, int y1, int x2, int y2) {
     }
 }
 
-void BMPImage::save(const std::string& filename) const {
+void BMPImage::save(const std::string& filename) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Could not create file: " + filename);
@@ -89,9 +75,37 @@ void BMPImage::save(const std::string& filename) const {
 
     HEADERS headers = createHeaders();
 
+    writeHeaderes(headers, file);
+    writePixels(file);
+    file.close();
+}
+
+void BMPImage::readHeaderes(HEADERS& headers, std::ifstream& file){
+    file.read(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
+    file.read(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
+}
+
+void BMPImage::writeHeaderes(HEADERS& headers, std::ofstream& file){
     file.write(reinterpret_cast<char*>(&headers.fileHeader), sizeof(headers.fileHeader));
     file.write(reinterpret_cast<char*>(&headers.infoHeader), sizeof(headers.infoHeader));
+}
 
+void BMPImage::readPixels(std::ifstream& file){
+    for (int y = height - 1; y >= 0; --y) {
+        if (bit_ == 32){
+            file.read(reinterpret_cast<char*>(pixels[y].data()), width * sizeof(RGBQUAD));    
+        }else{
+            for (int x = 0; x < width; ++x) {
+                RGBTRIPLE triple;
+                file.read(reinterpret_cast<char*>(&triple), sizeof(RGBTRIPLE));
+                pixels[y][x] = {triple.rgbtBlue, triple.rgbtGreen, triple.rgbtRed, 0};
+            }
+            skipPadding(file);      
+        }
+    }
+}
+
+void BMPImage::writePixels(std::ofstream& file){
     for (int y = height - 1; y >= 0; --y) {
         if (bit_ == 32) {
             file.write(reinterpret_cast<const char*>(pixels[y].data()), width * sizeof(RGBQUAD));
@@ -102,8 +116,7 @@ void BMPImage::save(const std::string& filename) const {
             }
             addPadding(file);
         }
-        }
-    file.close();
+    }   
 }
 
 void BMPImage::skipPadding(std::ifstream& file) const {
