@@ -22,11 +22,8 @@ int main() {
         if (StringTools::startsWith(message->text, "/start")) {
             return;
         }
-        std::cout<<"input2\n";
+
         //float toxicity = client.ClassifyMessage(message->text);
-
-        std::cout<<"input2\n";
-
 
 
         bot.getApi().sendMessage(message->chat->id, "Your message is: ");
