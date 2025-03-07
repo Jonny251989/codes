@@ -1,0 +1,2 @@
+/usr/bin/ar qc libToxicityClassifierClient.a CMakeFiles/ToxicityClassifierClient.dir/client.cpp.o CMakeFiles/ToxicityClassifierClient.dir/toxicity_classifier.pb.cc.o CMakeFiles/ToxicityClassifierClient.dir/toxicity_classifier.grpc.pb.cc.o
+/usr/bin/ranlib libToxicityClassifierClient.a

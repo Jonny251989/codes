@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Явно ищем зависимости
+find_dependency(Protobuf CONFIG REQUIRED)
+find_dependency(gRPC CONFIG REQUIRED)
+find_dependency(absl CONFIG REQUIRED)
+find_dependency(utf8_range CONFIG REQUIRED)
+
+# Подключаем цели библиотеки
+include("${CMAKE_CURRENT_LIST_DIR}/ToxicityClassifierClientTargets.cmake")

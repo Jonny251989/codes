@@ -1,0 +1,8 @@
+/usr/local/lib/libToxicityClassifierClient.a
+/usr/local/lib/cmake/ToxicityClassifierClient/ToxicityClassifierClientTargets.cmake
+/usr/local/lib/cmake/ToxicityClassifierClient/ToxicityClassifierClientTargets-noconfig.cmake
+/usr/local/lib/cmake/ToxicityClassifierClient/ToxicityClassifierClientConfig.cmake
+/usr/local/lib/cmake/ToxicityClassifierClient/ToxicityClassifierClientConfigVersion.cmake
+/usr/local/include/client.hpp
+/usr/local/include/toxicity_classifier.pb.h
+/usr/local/include/toxicity_classifier.grpc.pb.h

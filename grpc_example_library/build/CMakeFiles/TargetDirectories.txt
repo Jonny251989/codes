@@ -1,0 +1,3 @@
+/home/ivan/vs_code/codes/grpc_example_library/build/CMakeFiles/grpc.dir
+/home/ivan/vs_code/codes/grpc_example_library/build/CMakeFiles/edit_cache.dir
+/home/ivan/vs_code/codes/grpc_example_library/build/CMakeFiles/rebuild_cache.dir

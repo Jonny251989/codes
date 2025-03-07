@@ -1,0 +1,7 @@
+/home/ivan/vs_code/codes/grpc_example_library/grpcClientLibrary/build/CMakeFiles/ToxicityClassifierClient.dir
+/home/ivan/vs_code/codes/grpc_example_library/grpcClientLibrary/build/CMakeFiles/edit_cache.dir
+/home/ivan/vs_code/codes/grpc_example_library/grpcClientLibrary/build/CMakeFiles/rebuild_cache.dir
+/home/ivan/vs_code/codes/grpc_example_library/grpcClientLibrary/build/CMakeFiles/list_install_components.dir
+/home/ivan/vs_code/codes/grpc_example_library/grpcClientLibrary/build/CMakeFiles/install.dir
+/home/ivan/vs_code/codes/grpc_example_library/grpcClientLibrary/build/CMakeFiles/install/local.dir
+/home/ivan/vs_code/codes/grpc_example_library/grpcClientLibrary/build/CMakeFiles/install/strip.dir
