@@ -1,0 +1,14 @@
+/workspace/build/CMakeFiles/edit_cache.dir
+/workspace/build/CMakeFiles/rebuild_cache.dir
+/workspace/build/common/CMakeFiles/common.dir
+/workspace/build/common/CMakeFiles/edit_cache.dir
+/workspace/build/common/CMakeFiles/rebuild_cache.dir
+/workspace/build/server/CMakeFiles/telemetry_server.dir
+/workspace/build/server/CMakeFiles/edit_cache.dir
+/workspace/build/server/CMakeFiles/rebuild_cache.dir
+/workspace/build/client/CMakeFiles/telemetry_client.dir
+/workspace/build/client/CMakeFiles/edit_cache.dir
+/workspace/build/client/CMakeFiles/rebuild_cache.dir
+/workspace/build/tests/CMakeFiles/unit_tests.dir
+/workspace/build/tests/CMakeFiles/edit_cache.dir
+/workspace/build/tests/CMakeFiles/rebuild_cache.dir
