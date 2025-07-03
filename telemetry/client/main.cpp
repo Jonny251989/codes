@@ -1,46 +1,26 @@
-#include "cli_interface.hpp"
+#include "udp_client.hpp"
 #include "protocol.hpp"
-#include "network_utils.hpp"
 #include <boost/asio.hpp>
 #include <iostream>
 #include <string>
 
-int main(int argc, char* argv[]) {
+#include <stdexcept>
 
+int main(int argc, char* argv[]) {
     try {
+        // 1. Проверка аргументов командной строки
         if (argc != 3) {
-            std::cerr << "Usage: client <host> <port>\n";
+            std::cerr << "Usage: " << argv[0] << " <host> <port>\n";
             return 1;
         }
 
-        boost::asio::io_context io_context;
-        boost::asio::ip::udp::resolver resolver(io_context);
-        auto endpoints = resolver.resolve(argv[1], argv[2]);
+        // 2. Создание и запуск клиента
+        UdpClient client(argv[1], argv[2]);
+        client.run();
         
-        boost::asio::ip::udp::socket socket(io_context);
-        socket.open(boost::asio::ip::udp::v4());
-        
-        // Ввод данных
-        TelemetryData data = input_telemetry_data();
-        
-        // Упаковка данных
-        uint64_t packet = pack_data(data);
-
-        std::cout << "Packed data: 0x" << std::hex << packet << std::dec << "\n";
-        
-        // Отправка данных
-        send_udp_packet(socket, *endpoints.begin(), packet);
-        
-        // Получение ответа
-        boost::asio::ip::udp::endpoint server_endpoint;
-        uint8_t response = receive_udp_response(socket, server_endpoint);
-        
-        // Вывод результата
-        print_server_response(response);
-        
-    } catch (std::exception& e) {
-        std::cerr << "Exception: " << e.what() << "\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Client exception: " << e.what() << "\n";
+        return 1;
     }
-
     return 0;
 }

@@ -1,17 +1,17 @@
 #include <gtest/gtest.h>
 #include "protocol.hpp"
 
+
 TEST(TelemetryProtocolTest, FullCyclePackingUnpacking) {
-    TelemetryData original{
-        31,         // x
-        -10,        // y
-        150,        // velocity
-        2,          // mode
-        1,          // state
-        5.5f,       // acceleration
-        90,         // power
-        0xABCD      // reserved
-    };
+    TelemetryData original{};
+    original.x = 31;
+    original.y = 22;         // -10 + 32 = 22
+    original.velocity = 150;
+    original.mode = 2;
+    original.state = 1;
+    original.acceleration = 182; // (5.5f + 12.7f) * 10 = 182
+    original.power = 90;
+    original.reserved = 0xABCD;
 
     uint64_t packed = pack_data(original);
     TelemetryData unpacked = unpack_data(packed);
@@ -21,22 +21,21 @@ TEST(TelemetryProtocolTest, FullCyclePackingUnpacking) {
     EXPECT_EQ(original.velocity, unpacked.velocity);
     EXPECT_EQ(original.mode, unpacked.mode);
     EXPECT_EQ(original.state, unpacked.state);
-    EXPECT_FLOAT_EQ(original.acceleration, unpacked.acceleration);
+    EXPECT_EQ(original.acceleration, unpacked.acceleration);
     EXPECT_EQ(original.power, unpacked.power);
     EXPECT_EQ(original.reserved, unpacked.reserved);
 }
 
 TEST(TelemetryProtocolTest, EdgeValues) {
-    TelemetryData edge{
-        0,          // min x
-        -32,        // min y
-        0,          // min velocity
-        0,          // min mode
-        0,          // min state
-        -12.7f,     // min acceleration
-        0,          // min power
-        0xFFFF      // max reserved
-    };
+    TelemetryData edge{};
+    edge.x = 0;
+    edge.y = 0;              // -32 + 32 = 0
+    edge.velocity = 0;
+    edge.mode = 0;
+    edge.state = 0;
+    edge.acceleration = 0;   // (-12.7f + 12.7f) * 10 = 0
+    edge.power = 0;
+    edge.reserved = 0x3FFFF; // Максимальное 18-битное значение
 
     uint64_t packed = pack_data(edge);
     TelemetryData unpacked = unpack_data(packed);
@@ -46,31 +45,68 @@ TEST(TelemetryProtocolTest, EdgeValues) {
     EXPECT_EQ(edge.velocity, unpacked.velocity);
     EXPECT_EQ(edge.mode, unpacked.mode);
     EXPECT_EQ(edge.state, unpacked.state);
-    EXPECT_NEAR(edge.acceleration, unpacked.acceleration, 0.05f);
+    EXPECT_EQ(edge.acceleration, unpacked.acceleration);
     EXPECT_EQ(edge.power, unpacked.power);
     EXPECT_EQ(edge.reserved, unpacked.reserved);
 }
 
 TEST(TelemetryProtocolTest, OverflowProtection) {
     TelemetryData overflow{};
-    overflow.x = 100;        // >63
-    overflow.y = -50;        // < -32
-    overflow.velocity = 300; // >255
-    overflow.mode = 5;       // >3
-    overflow.state = 4;      // >3
-    overflow.acceleration = 20.0f; // >12.8
-    overflow.power = 200;    // >130
-    overflow.reserved = 0x12345; // >0xFFFF
+
+    // Присваиваем значения, выходящие за пределы битовых полей
+    overflow.x = 100;        // >63 -> ожидаем 100 % 64 = 36
+    overflow.y = 100;        // >63 -> ожидаем 100 % 64 = 36
+    overflow.velocity = 300; // >255 -> ожидаем 300 % 256 = 44
+    overflow.mode = 5;       // >3 -> ожидаем 5 % 4 = 1
+    overflow.state = 4;      // >3 -> ожидаем 4 % 4 = 0
+    overflow.acceleration = 300; // >255 -> ожидаем 300 % 256 = 44
+    overflow.power = 200;    // 200 < 255 -> без изменений
+    overflow.reserved = 0x123456; // >0x3FFFF -> ожидаем 0x123456 % 0x40000 = 0x3456
 
     uint64_t packed = pack_data(overflow);
     TelemetryData unpacked = unpack_data(packed);
 
-    EXPECT_LE(unpacked.x, 63);
-    EXPECT_GE(unpacked.y, -32);
-    EXPECT_LE(unpacked.velocity, 255);
-    EXPECT_LE(unpacked.mode, 3);
-    EXPECT_LE(unpacked.state, 3);
-    EXPECT_LE(unpacked.acceleration, 12.8f);
-    EXPECT_EQ(unpacked.power, 130);  // Изменено с LE на EQ
-    EXPECT_EQ(unpacked.reserved, 0x2345);
+    EXPECT_EQ(36, unpacked.x);
+    EXPECT_EQ(36, unpacked.y);
+    EXPECT_EQ(44, unpacked.velocity);
+    EXPECT_EQ(1, unpacked.mode);
+    EXPECT_EQ(0, unpacked.state);
+    EXPECT_EQ(44, unpacked.acceleration);
+    EXPECT_EQ(200, unpacked.power);
+    EXPECT_EQ(0x23456, unpacked.reserved);
+}
+
+TEST(TelemetryProtocolTest, ReservedField) {
+    TelemetryData data{};
+    
+    // Максимальное значение (18 бит)
+    data.reserved = 0x3FFFF;
+    uint64_t packed = pack_data(data);
+    TelemetryData unpacked = unpack_data(packed);
+    EXPECT_EQ(0x3FFFF, unpacked.reserved);
+    
+    // Значение больше максимального
+    data.reserved = 0x4FFFF;
+    packed = pack_data(data);
+    unpacked = unpack_data(packed);
+    EXPECT_EQ(0x0FFFF, unpacked.reserved);  // 0x4FFFF & 0x3FFFF = 0x0FFFF
+}
+
+TEST(TelemetryProtocolTest, NegativeY) {
+    TelemetryData data{};
+    
+    data.y = 0;  // -32
+    uint64_t packed = pack_data(data);
+    TelemetryData unpacked = unpack_data(packed);
+    EXPECT_EQ(0, unpacked.y);
+    
+    data.y = 63; // 31
+    packed = pack_data(data);
+    unpacked = unpack_data(packed);
+    EXPECT_EQ(63, unpacked.y);
+    
+    data.y = 32; // 0
+    packed = pack_data(data);
+    unpacked = unpack_data(packed);
+    EXPECT_EQ(32, unpacked.y);
 }
