@@ -21,7 +21,6 @@ private:
     // Отправка UDP-пакета
     void send_udp_packet(uint64_t data);
 
-    
     // Прием UDP-ответа
     uint8_t receive_udp_response();
     
