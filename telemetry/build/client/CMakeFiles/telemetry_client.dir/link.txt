@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/telemetry_client.dir/main.cpp.o CMakeFiles/telemetry_client.dir/udp_client.cpp.o -o telemetry_client  ../common/libcommon.a /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0 
