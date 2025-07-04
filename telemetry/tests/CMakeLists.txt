@@ -3,7 +3,7 @@ set(target unit_tests)
 find_package(GTest REQUIRED)
 
 add_executable(${target}
-    unit_tests.cpp
+    functional_tests.cpp
     main.cpp
 )
 

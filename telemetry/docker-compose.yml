@@ -1,24 +1,12 @@
 version: '3.8'
 
 services:
-  builder:
-    image: telemetry-system
-    build: .
-    volumes:
-      - ./:/workspace/src:ro
-      - ./build-output:/workspace/build
-      - ./bin-output:/workspace/bin
-    command: /usr/local/bin/build.sh
-    profiles: ["build"]
-
   telemetry_server:
     image: telemetry-system
     volumes:
       - ./bin-output:/workspace/bin:ro
       - ./server/limits.json:/app/config/limits.json:ro 
     command: /workspace/bin/telemetry_server 12345 /app/config/limits.json
-    ports:
-      - "12345:12345/udp"
     networks:
       - telemetry_net
 
@@ -26,24 +14,26 @@ services:
     image: telemetry-system
     volumes:
       - ./bin-output:/workspace/bin:ro
-    command: /workspace/bin/telemetry_client telemetry_server 12345
-    stdin_open: true
-    tty: true
     networks:
       - telemetry_net
+    # Будет запущен тестовым раннером
+    command: ["sleep", "infinity"] 
 
-  unit_tests:
-    image: telemetry-system
+  test_runner:
+    build: .
     volumes:
       - ./bin-output:/workspace/bin:ro
-    command: /workspace/bin/unit_tests
+      - ./test_data:/test_data
+    depends_on:
+      - telemetry_server
+      - telemetry_client
     networks:
       - telemetry_net
+    command: /workspace/bin/functional_tests
 
 networks:
   telemetry_net:
     driver: bridge
 
 volumes:
-  build-output:
   bin-output:

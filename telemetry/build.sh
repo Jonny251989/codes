@@ -15,6 +15,7 @@ make -j$(nproc)
 mkdir -p /workspace/bin
 cp server/telemetry_server /workspace/bin/
 cp client/telemetry_client /workspace/bin/
-cp tests/unit_tests /workspace/bin/
+#cp tests/unit_tests /workspace/bin/
+cp tests/functional_tests /workspace/bin/
 
 echo "Build completed successfully!"
