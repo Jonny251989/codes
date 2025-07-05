@@ -22,24 +22,13 @@ void UdpServer::handle_receive(const boost::system::error_code& error, size_t by
         return;
     }
 
-    // Логирование полученного пакета
-    std::cerr << "\n[Server] Received " << bytes << " bytes from "
-              << remote_endpoint_.address().to_string() << ":" 
-              << remote_endpoint_.port() << "\n";
-    
-    std::cerr << "  Raw packet: 0x";
     const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(&recv_buffer_);
-    for (size_t i = 0; i < bytes; ++i) {
-        std::cerr << std::hex << std::setw(2) << std::setfill('0')
-                  << static_cast<int>(byte_ptr[i]) << " ";
-    }
-    std::cerr << std::dec << "\n";
 
     uint64_t host_data = network_to_host_uint64(recv_buffer_);
     TelemetryData data = unpack_data(host_data);
     
     // Логирование распакованных данных
-    std::cerr << "  Unpacked data:\n"
+    std::cout << "  Unpacked data:\n"
               << "    X: " << data.x << "\n"
               << "    Y (raw): " << data.y << " (decoded: " << (static_cast<int>(data.y)) - 32 << ")\n"
               << "    Velocity: " << static_cast<int>(data.velocity) << "\n"
@@ -55,16 +44,16 @@ void UdpServer::handle_receive(const boost::system::error_code& error, size_t by
     response_[0] = 0;
     response_[1] = is_valid ? 1 : 0;
     
-    std::cerr << "  Validation result: " << (is_valid ? "VALID" : "INVALID") << "\n";
+    std::cout << "  Validation result: " << (is_valid ? "VALID" : "INVALID") << "\n";
     
     socket_.async_send_to(
         boost::asio::buffer(response_, 2),
         remote_endpoint_,
         [this](const boost::system::error_code& error, size_t) {
             if (error) {
-                std::cerr << "  Send response error: " << error.message() << "\n";
+                std::cout << "  Send response error: " << error.message() << "\n";
             } else {
-                std::cerr << "  Response sent: 0x" << std::hex 
+                std::cout << "  Response sent: 0x" << std::hex 
                           << static_cast<int>(response_[0]) << " "
                           << static_cast<int>(response_[1]) << std::dec << "\n";
             }

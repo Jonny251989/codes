@@ -15,7 +15,6 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        // 2. Создание и запуск клиента
         UdpClient client(argv[1], argv[2]);
         client.run();
         

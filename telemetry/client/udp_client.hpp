@@ -26,7 +26,6 @@ private:
     // Прием UDP-ответа
     uint8_t receive_udp_response();
     
-    // Члены класса
     boost::asio::io_context io_context_;
     boost::asio::ip::udp::resolver resolver_;
     boost::asio::ip::udp::resolver::results_type endpoints_;

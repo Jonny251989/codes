@@ -1,7 +1,4 @@
 #include "udp_client.hpp"
-#include "network_utils.hpp"
-
-
 
 UdpClient::UdpClient(const char* host, const char* port)
     : resolver_(io_context_),
@@ -101,8 +98,6 @@ TelemetryData UdpClient::input_telemetry_data() {
             break;
         }
     };
-
-    std::cerr << "\n=== Data Input ===\n";
     
     // Для X (0-63)
     validate_input(tmp_int, 0, 63, "X");
@@ -132,7 +127,6 @@ TelemetryData UdpClient::input_telemetry_data() {
     validate_input(tmp_int, 0, 130, "Power");
     data.power = tmp_int;
     
-    std::cerr << "=================\n";
     return data;
 }
 
