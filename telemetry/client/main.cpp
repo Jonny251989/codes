@@ -3,10 +3,11 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <string>
-
+#include <clocale>
 #include <stdexcept>
 
 int main(int argc, char* argv[]) {
+    setlocale(LC_ALL, "C");
     try {
         // 1. Проверка аргументов командной строки
         if (argc != 3) {

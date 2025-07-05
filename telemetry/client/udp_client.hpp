@@ -5,6 +5,8 @@
 #include "protocol.hpp"
 #include <iomanip>
 #include <limits>
+#include <type_traits>
+#include <algorithm>
 
 class UdpClient {
 public:

@@ -23,52 +23,114 @@ void UdpClient::run() {
 
 TelemetryData UdpClient::input_telemetry_data() {
     TelemetryData data{};
-    uint8_t tmp_x;
-    int tmp_y;
-    uint8_t tmp_velocity;
-    uint8_t tmp_mode;
-    uint8_t tmp_state;
-    float tmp_acceleration;
-    uint8_t tmp_power;
+    int tmp_int; // Используем int для всех целочисленных значений
+    float tmp_float;
     
-    auto validate_input = [](auto& value, auto min, auto max, const std::string& field) {
+    auto validate_input = [](auto& value_ref, auto min, auto max, const std::string& field) {
+        using ValueType = std::decay_t<decltype(value_ref)>;
+        
         while (true) {
             std::cout << "Enter " << field << " [" << min << "-" << max << "]: ";
-            if (!(std::cin >> value)) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cerr << "Invalid input. Please enter a valid number.\n";
+            
+            std::string input_line;
+            if (!std::getline(std::cin, input_line)) {
+                if (std::cin.eof()) {
+                    std::cerr << "Error: End of input reached. Exiting.\n";
+                    exit(1);
+                }
+                std::cerr << "Error reading input. Please try again.\n";
                 continue;
             }
             
-            if (value < min || value > max) {
+            // Удаление \r для кросс-платформенности
+            input_line.erase(std::remove(input_line.begin(), input_line.end(), '\r'), input_line.end());
+            
+            // Пропуск пустых строк
+            if (input_line.empty()) {
+                std::cerr << "Empty input. Please enter a value.\n";
+                continue;
+            }
+            
+            std::istringstream iss(input_line);
+            iss.imbue(std::locale("C"));
+            
+            if constexpr (std::is_floating_point_v<ValueType>) {
+                double temp;
+                if (!(iss >> temp)) {
+                    std::cerr << "Invalid input. Please enter a valid floating point number.\n";
+                    continue;
+                }
+                
+                // Проверка на дополнительные символы
+                char remaining;
+                if (iss >> remaining) {
+                    std::cerr << "Invalid input: extra characters detected.\n";
+                    continue;
+                }
+                
+                value_ref = static_cast<ValueType>(temp);
+            } 
+            else {
+                long temp;  // Используем long для обработки больших чисел
+                if (!(iss >> temp)) {
+                    std::cerr << "Invalid input. Please enter a valid integer.\n";
+                    continue;
+                }
+                
+                // Проверка на дополнительные символы
+                char remaining;
+                if (iss >> remaining) {
+                    std::cerr << "Invalid input: extra characters detected.\n";
+                    continue;
+                }
+                
+                // Проверка диапазона типа
+                if (temp < std::numeric_limits<ValueType>::min() || 
+                    temp > std::numeric_limits<ValueType>::max()) {
+                    std::cerr << "Error: Value out of range for type.\n";
+                    continue;
+                }
+                
+                value_ref = static_cast<ValueType>(temp);
+            }
+            
+            if (value_ref < min || value_ref > max) {
                 std::cerr << "Error: Value must be between " << min << " and " << max << ".\n";
                 continue;
             }
             break;
         }
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     };
 
     std::cerr << "\n=== Data Input ===\n";
     
-    // Ввод во временные переменные
-    validate_input(tmp_x, 0, 63, "X");
-    validate_input(tmp_y, -32, 31, "Y");
-    validate_input(tmp_velocity, 0, 255, "Velocity");
-    validate_input(tmp_mode, 0, 3, "Mode");
-    validate_input(tmp_state, 0, 3, "State");
-    validate_input(tmp_acceleration, -12.7f, 12.8f, "Acceleration");
-    validate_input(tmp_power, 0, 130, "Power");
+    // Для X (0-63)
+    validate_input(tmp_int, 0, 63, "X");
+    data.x = tmp_int;
     
-    // Присвоение значений битовым полям
-    data.x = tmp_x;
-    data.y = tmp_y + 32;  // Преобразование для упаковки
-    data.velocity = tmp_velocity;
-    data.mode = tmp_mode;
-    data.state = tmp_state;
-    data.acceleration = static_cast<uint8_t>((tmp_acceleration + 12.7f) * 10);
-    data.power = tmp_power;
+    // Для Y (-32-31)
+    validate_input(tmp_int, -32, 31, "Y");
+    data.y = tmp_int + 32;
+    
+    // Для Velocity (0-255)
+    validate_input(tmp_int, 0, 255, "Velocity");
+    data.velocity = tmp_int;
+    
+    // Для Mode (0-3)
+    validate_input(tmp_int, 0, 3, "Mode");
+    data.mode = tmp_int;
+    
+    // Для State (0-3)
+    validate_input(tmp_int, 0, 3, "State");
+    data.state = tmp_int;
+    
+    // Для Acceleration
+    validate_input(tmp_float, -12.7f, 12.8f, "Acceleration");
+    data.acceleration = static_cast<uint8_t>((tmp_float + 12.7f) * 10);
+    
+    // Для Power (0-130)
+    validate_input(tmp_int, 0, 130, "Power");
+    data.power = tmp_int;
     
     std::cerr << "=================\n";
     return data;

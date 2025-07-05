@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <json.hpp>
 #include "protocol.hpp"
 #include <map>

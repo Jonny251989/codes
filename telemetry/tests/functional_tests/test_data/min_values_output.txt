@@ -1,0 +1,16 @@
+
+=== Data Input ===
+Enter X [0-63]: Enter Y [-32-31]: Enter Velocity [0-255]: Enter Mode [0-3]: Enter State [0-3]: Enter Acceleration [-12.7-12.8]: Enter Power [0-130]: =================
+
+[PACK] Result: 0x01451190f0a80000
+Packed data: 0x1451190f0a80000
+
+[NETWORK] Sending UDP packet to 172.18.0.2:12345
+  Size: 8 bytes
+  Data (network order): 01 45 11 90 f0 a8 00 00 
+
+[NETWORK] Waiting for UDP response...
+  Received: 2 bytes
+  Data: 0x0 1
+
+[RESULT] Data is valid

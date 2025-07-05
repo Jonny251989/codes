@@ -7,15 +7,10 @@ RUN apt-get update && \
     cmake \
     libboost-system-dev \
     libgtest-dev \
-    google-mock \
     libgmock-dev \
     git \
-    qtbase5-dev \
-    qt5-qmake \
-    qtdeclarative5-dev \
-    qttools5-dev \
-    qttools5-dev-tools \
-    libqt5charts5-dev \
+    netcat \
+    iputils-ping \
     xvfb \
     nlohmann-json3-dev \
     python3 \
@@ -26,9 +21,10 @@ RUN apt-get update && \
 RUN pip3 install conan
 
 # Создание рабочей директории
+RUN mkdir -p /workspace
 WORKDIR /workspace
 
-# Копирование скриптов сборки
+# Копируем скрипт сборки
 COPY build.sh /usr/local/bin/build.sh
 RUN chmod +x /usr/local/bin/build.sh
 
