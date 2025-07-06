@@ -16,8 +16,5 @@ public:
     bool validate(const TelemetryData& data);
 
 private:
-
-    std::map<std::string, std::pair<int, int>> int_limits;
-    std::map<std::string, std::pair<float, float>> float_limits;
     nlohmann::json limits;
 };

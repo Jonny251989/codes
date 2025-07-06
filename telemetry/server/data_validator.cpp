@@ -12,37 +12,12 @@ DataValidator::DataValidator(const std::string& config_path) {
         json config;
         f >> config;
         
-        // Проверка наличия поля "limits"
-        if (!config.contains("limits")) {
-            throw std::runtime_error("Missing 'limits' field in config");
-        }
-        
-        // Проверка что "limits" является массивом
-        if (!config["limits"].is_array()) {
-            throw std::runtime_error("'limits' field must be an array");
-        }
-        
-        // Проверка что массив не пустой
-        if (config["limits"].empty()) {
-            throw std::runtime_error("'limits' array is empty");
-        }
         
         // Извлекаем первый элемент массива как объект с ограничениями
         limits = config["limits"][0];
         
-        // Проверка что элемент является объектом
-        if (!limits.is_object()) {
-            throw std::runtime_error("First element of 'limits' array must be a JSON object");
-        }
-        
         std::cout << "Loaded validation limits:\n";
         for (auto& [key, val] : limits.items()) {
-            // Проверка формата каждого ограничения
-            if (!val.is_array() || val.size() != 2) {
-                std::cout << "  ! [WARNING] Invalid format for field '" << key 
-                          << "': expected array of two elements\n";
-                continue;
-            }
             std::cout << "  " << key << ": [" << val[0] << ", " << val[1] << "]\n";
         }
     } catch (const std::exception& e) {
@@ -63,20 +38,7 @@ bool DataValidator::validate(const TelemetryData& data) {
               << "    Acceleration: " << original_acceleration << "\n";
 
     auto check = [&](auto value, const std::string& field) {
-        // Проверка наличия поля
-        if (!limits.contains(field)) {
-            std::cout << "  ! [ERROR] Field '" << field << "' not found in configuration\n";
-            return false;
-        }
 
-        // Проверка формата
-        if (!limits[field].is_array() || limits[field].size() != 2) {
-            std::cout << "  ! [ERROR] Invalid format for field '" << field 
-                      << "': expected array of two elements\n";
-            return false;
-        }
-
-        // Проверка типа и диапазона
         using ValueType = decltype(value);
         try {
             const ValueType min = limits[field][0].get<ValueType>();

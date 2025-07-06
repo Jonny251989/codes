@@ -15,7 +15,7 @@ void UdpClient::run() {
         std::cout << "Packed data: 0x" << std::hex << packet << std::dec << "\n";
         
         send_udp_packet(packet);
-        uint8_t response = receive_udp_response();
+        std::array<uint8_t, 2> response = receive_udp_response();
         analyse_server_response(response);
         // Запрос на продолжение
         std::cout << "\nContinue? (y/n): ";
@@ -141,18 +141,6 @@ TelemetryData UdpClient::input_telemetry_data() {
     return data;
 }
 
-
-void UdpClient::analyse_server_response(uint8_t response) {
-    if (response == 1) {
-        std::cout << "\n[RESULT] Data is valid\n";
-    } else if (response == 0) {
-        std::cout << "\n[RESULT] Data is invalid\n";
-    } else {
-        std::cout << "\n[ERROR] Invalid server response code: 0x" 
-                  << std::hex << static_cast<int>(response) << std::dec << "\n";
-    }
-}
-
 void UdpClient::send_udp_packet(uint64_t data) {
     if (endpoints_.empty()) {
         throw std::runtime_error("No endpoints available for sending");
@@ -177,8 +165,19 @@ void UdpClient::send_udp_packet(uint64_t data) {
     socket_.send_to(boost::asio::buffer(&net_data, sizeof(net_data)), endpoint);
 }
 
-uint8_t UdpClient::receive_udp_response() {
-    uint8_t response[2] = {0};
+void UdpClient::analyse_server_response(std::array<uint8_t, 2> response) {
+    if (response[0] == 1) {
+        std::cout << "\n[RESULT] Data is valid\n";
+    } else if (response[1] == 0) {
+        std::cout << "\n[RESULT] Data is invalid\n";
+    } else {
+        std::cout << "\n[ERROR] Invalid server response code\n";
+    }
+}
+
+
+std::array<uint8_t, 2> UdpClient::receive_udp_response() {
+    std::array<uint8_t,2> response = {0};
     boost::system::error_code ec;
 
     std::cerr << "\n[NETWORK] Waiting for UDP response...\n";
@@ -197,20 +196,6 @@ uint8_t UdpClient::receive_udp_response() {
 
     if (ec) {
         std::cerr << "  Receive error: " << ec.message() << "\n";
-        return 0xFF;
     }
-
-    if (length != 2) {
-        std::cerr << "  Error: Invalid response size. Expected 2 bytes, got " 
-                  << length << "\n";
-        return 0xFF;
-    }
-
-    if (response[0] != 0) {
-        std::cerr << "  Error: Invalid response format. First byte: 0x" 
-                  << std::hex << static_cast<int>(response[0]) << std::dec << "\n";
-        return 0xFF;
-    }
-
-    return response[1];
+    return response;
 }

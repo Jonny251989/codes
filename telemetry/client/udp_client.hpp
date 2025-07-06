@@ -7,6 +7,7 @@
 #include <limits>
 #include <type_traits>
 #include <algorithm>
+#include <array>
 
 class UdpClient {
 public:
@@ -17,14 +18,14 @@ public:
     void run();
 
     TelemetryData input_telemetry_data();
-    void analyse_server_response(uint8_t response);
+    void analyse_server_response(std::array<uint8_t, 2> response);
 
 private:
     // Отправка UDP-пакета
     void send_udp_packet(uint64_t data);
 
     // Прием UDP-ответа
-    uint8_t receive_udp_response();
+    std::array<uint8_t, 2> receive_udp_response();
     
     boost::asio::io_context io_context_;
     boost::asio::ip::udp::resolver resolver_;
