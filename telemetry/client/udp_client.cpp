@@ -17,7 +17,6 @@ void UdpClient::run() {
         send_udp_packet(packet);
         uint8_t response = receive_udp_response();
         analyse_server_response(response);
-
         // Запрос на продолжение
         std::cout << "\nContinue? (y/n): ";
         std::string answer;
