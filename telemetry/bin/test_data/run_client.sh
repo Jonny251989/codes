@@ -1,19 +1,24 @@
 #!/bin/bash
-set -e
 
 TEST_NAME=$1
+export LC_ALL=C
 INPUT_FILE="/test_data/${TEST_NAME}_input.txt"
 OUTPUT_FILE="/test_data/${TEST_NAME}_output.txt"
 
 echo "Starting test: $TEST_NAME"
 echo "Input file: $INPUT_FILE"
 
-# Создаем выходной файл, если не существует
-touch "$OUTPUT_FILE"
+# Проверяем существование входного файла
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: Input file $INPUT_FILE not found!" >&2
+    exit 1
+fi
 
-# Запускаем клиент
-timeout 10s /app/telemetry_client telemetry_server 12345 < "$INPUT_FILE" > "$OUTPUT_FILE" 2>&1
+# Запускаем клиент с таймаутом и подачей входных данных
+timeout 15s /app/telemetry_client telemetry_server 12345 < "$INPUT_FILE" > "$OUTPUT_FILE" 2>&1
 EXIT_CODE=$?
 
-echo "Test completed. Exit code: $EXIT_CODE"
+echo "Client output:"
+cat "$OUTPUT_FILE"
+
 exit $EXIT_CODE

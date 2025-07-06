@@ -14,8 +14,8 @@ if [ ! -f "$INPUT_FILE" ]; then
     exit 1
 fi
 
-# Запускаем клиент с таймаутом
-timeout 10s /workspace/bin/telemetry_client telemetry_server 12345 < "$INPUT_FILE" > "$OUTPUT_FILE" 2>&1
+# Запускаем клиент с таймаутом и подачей входных данных
+timeout 15s /app/telemetry_client telemetry_server 12345 < "$INPUT_FILE" > "$OUTPUT_FILE" 2>&1
 EXIT_CODE=$?
 
 echo "Client output:"

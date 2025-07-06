@@ -9,13 +9,25 @@ UdpClient::UdpClient(const char* host, const char* port)
 }
 
 void UdpClient::run() {
-    TelemetryData data = input_telemetry_data();
-    uint64_t packet = pack_data(data);
-    std::cout << "Packed data: 0x" << std::hex << packet << std::dec << "\n";
-    
-    send_udp_packet(packet);
-    uint8_t response = receive_udp_response();
-    analyse_server_response(response);
+    while (true) {
+        TelemetryData data = input_telemetry_data();
+        uint64_t packet = pack_data(data);
+        std::cout << "Packed data: 0x" << std::hex << packet << std::dec << "\n";
+        
+        send_udp_packet(packet);
+        uint8_t response = receive_udp_response();
+        analyse_server_response(response);
+
+        // Запрос на продолжение
+        std::cout << "\nContinue? (y/n): ";
+        std::string answer;
+        std::getline(std::cin, answer);
+        
+        if (answer == "n" || answer == "N") {
+            std::cout << "Exiting client...\n";
+            break;
+        }
+    }
 }
 
 TelemetryData UdpClient::input_telemetry_data() {
