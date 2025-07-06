@@ -28,87 +28,46 @@ void UdpClient::run() {
         }
     }
 }
+template <typename T>
+void UdpClient::validate_input(T& value_ref, T min, T max, const std::string& field){
+    using ValueType = std::decay_t<decltype(value_ref)>;
+        
+    while (true) {
+        std::cout << "Enter " << field << " [" << min << "-" << max << "]: ";
+        
+        std::string input_line;
+        
+        if (!std::getline(std::cin, input_line)) {
+            if (std::cin.eof()) {
+                std::cerr << "Error: End of input reached. Exiting.\n";
+                exit(1);
+            }
+            std::cerr << "Error reading input. Please try again.\n";
+            continue;
+        }
+        
+        // Пропуск пустых строк
+        if (input_line.empty()) {
+            std::cerr << "Empty input. Please enter a value.\n";
+            continue;
+        }
+        
+        size_t pos;
+        long value = std::stol(input_line, &pos);
+        value_ref = static_cast<T>(value);
+
+        if (value_ref < min || value_ref > max) {
+            std::cerr << "Error: Value must be between " << min << " and " << max << ".\n";
+            continue;
+        }
+        break;
+    }
+}
 
 TelemetryData UdpClient::input_telemetry_data() {
     TelemetryData data{};
     int tmp_int; // Используем int для всех целочисленных значений
     float tmp_float;
-    
-    auto validate_input = [](auto& value_ref, auto min, auto max, const std::string& field) {
-        using ValueType = std::decay_t<decltype(value_ref)>;
-        
-        while (true) {
-            std::cout << "Enter " << field << " [" << min << "-" << max << "]: ";
-            
-            std::string input_line;
-            if (!std::getline(std::cin, input_line)) {
-                if (std::cin.eof()) {
-                    std::cerr << "Error: End of input reached. Exiting.\n";
-                    exit(1);
-                }
-                std::cerr << "Error reading input. Please try again.\n";
-                continue;
-            }
-            
-            // Удаление \r для кросс-платформенности
-            input_line.erase(std::remove(input_line.begin(), input_line.end(), '\r'), input_line.end());
-            
-            // Пропуск пустых строк
-            if (input_line.empty()) {
-                std::cerr << "Empty input. Please enter a value.\n";
-                continue;
-            }
-            
-            std::istringstream iss(input_line);
-            iss.imbue(std::locale("C"));
-            
-            if constexpr (std::is_floating_point_v<ValueType>) {
-                double temp;
-                if (!(iss >> temp)) {
-                    std::cerr << "Invalid input. Please enter a valid floating point number.\n";
-                    continue;
-                }
-                
-                // Проверка на дополнительные символы
-                char remaining;
-                if (iss >> remaining) {
-                    std::cerr << "Invalid input: extra characters detected.\n";
-                    continue;
-                }
-                
-                value_ref = static_cast<ValueType>(temp);
-            } 
-            else {
-                long temp;  // Используем long для обработки больших чисел
-                if (!(iss >> temp)) {
-                    std::cerr << "Invalid input. Please enter a valid integer.\n";
-                    continue;
-                }
-                
-                // Проверка на дополнительные символы
-                char remaining;
-                if (iss >> remaining) {
-                    std::cerr << "Invalid input: extra characters detected.\n";
-                    continue;
-                }
-                
-                // Проверка диапазона типа
-                if (temp < std::numeric_limits<ValueType>::min() || 
-                    temp > std::numeric_limits<ValueType>::max()) {
-                    std::cerr << "Error: Value out of range for type.\n";
-                    continue;
-                }
-                
-                value_ref = static_cast<ValueType>(temp);
-            }
-            
-            if (value_ref < min || value_ref > max) {
-                std::cerr << "Error: Value must be between " << min << " and " << max << ".\n";
-                continue;
-            }
-            break;
-        }
-    };
     
     // Для X (0-63)
     validate_input(tmp_int, 0, 63, "X");
@@ -166,12 +125,18 @@ void UdpClient::send_udp_packet(uint64_t data) {
 }
 
 void UdpClient::analyse_server_response(std::array<uint8_t, 2> response) {
-    if (response[0] == 1) {
-        std::cout << "\n[RESULT] Data is valid\n";
-    } else if (response[1] == 0) {
-        std::cout << "\n[RESULT] Data is invalid\n";
+    if (response[0] == 0) {
+        if (response[1] == 1) {
+            std::cout << "  [RESULT] Data is valid\n";
+        } else if (response[1] == 0) {
+            std::cout << "  [RESULT] Data is invalid\n";
+        } else {
+            std::cout << "  [ERROR] Unknown status code: " 
+                      << static_cast<int>(response[1]) << "\n";
+        }
     } else {
-        std::cout << "\n[ERROR] Invalid server response code\n";
+        std::cout << "  [ERROR] Invalid header byte: " 
+                  << static_cast<int>(response[0]) << "\n";
     }
 }
 

@@ -5,6 +5,7 @@
 #include "network_utils.hpp"
 #include "protocol.hpp"
 #include <iostream>
+#include <array>
 
 class UdpServer {
 public:
@@ -18,6 +19,6 @@ private:
     boost::asio::ip::udp::socket socket_;
     boost::asio::ip::udp::endpoint remote_endpoint_;
     uint64_t recv_buffer_;
-    char response_[2];
+    std::array<uint8_t, 2> response_;
     DataValidator validator_;
 };
