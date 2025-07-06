@@ -1,5 +1,6 @@
 /bin-output/
 /build-output/
+/bin/
 /.vscode
 /build
 codes.txt
