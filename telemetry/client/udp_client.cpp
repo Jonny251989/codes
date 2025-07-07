@@ -12,18 +12,17 @@ void UdpClient::run() {
     while (true) {
         TelemetryData data = input_telemetry_data();
         uint64_t packet = pack_data(data);
-        std::cout << "Packed data: 0x" << std::hex << packet << std::dec << "\n";
         
         send_udp_packet(packet);
         std::array<uint8_t, 2> response = receive_udp_response();
         analyse_server_response(response);
-        // Запрос на продолжение
-        std::cout << "\nContinue? (y/n): ";
+
+        std::cout << "Continue? (y/n): ";
         std::string answer;
         std::getline(std::cin, answer);
         
         if (answer == "n" || answer == "N") {
-            std::cout << "Exiting client...\n";
+            std::cout << "Exiting client\n";
             break;
         }
     }
@@ -37,25 +36,18 @@ void UdpClient::validate_input(T& value_ref, T min, T max, const std::string& fi
         std::string input_line;
         if (!std::getline(std::cin, input_line)) {
             if (std::cin.eof()) {
-                std::cerr << "Error: End of input reached. Exiting.\n";
+                std::cout << "Error: End of input reached. Exiting.\n";
                 exit(1);
             }
-            std::cerr << "Error reading input. Please try again.\n";
+            std::cout << "Error reading input. Please try again.\n";
             continue;
         }
-        
-        // Пропуск пустых строк
-        if (input_line.empty()) {
-            std::cerr << "Empty input. Please enter a value.\n";
-            continue;
-        }
-        
         size_t pos;
         long value = std::stol(input_line, &pos);
         value_ref = static_cast<T>(value);
 
         if (value_ref < min || value_ref > max) {
-            std::cerr << "Error: Value must be between " << min << " and " << max << ".\n";
+            std::cout << "Error: Value must be between " << min << " and " << max << ".\n";
             continue;
         }
         break;
@@ -100,27 +92,22 @@ void UdpClient::send_udp_packet(uint64_t data) {
     const auto endpoint = endpoints_.begin()->endpoint();
     
     const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(&net_data);
-    for (size_t i = 0; i < sizeof(net_data); ++i) {
-        std::cerr << std::hex << std::setw(2) << std::setfill('0')
-                  << static_cast<int>(byte_ptr[i]) << " ";
-    }
-    std::cerr << std::dec << "\n";
     
     socket_.send_to(boost::asio::buffer(&net_data, sizeof(net_data)), endpoint);
 }
 
 void UdpClient::analyse_server_response(std::array<uint8_t, 2> response) {
     switch (response[0]) {
-        case 0: // Status code 0
-            if (response[1])  std::cout << "Data is valid";
-            else std::cout << "Data is invalid";  
+        case 0:
+            if (response[1])  std::cout << "Data is valid\n";
+            else std::cout << "Data is invalid\n";  
             break;
             
-        case 1: // Status code 1
+        case 1:
             std::cout << "Unpack_failed or invalid packet size\n";
             break;
             
-        case 2: // All other status codes
+        case 2:
             std::cout << "Server error\n";
             break;
 
@@ -134,7 +121,7 @@ std::array<uint8_t, 2> UdpClient::receive_udp_response() {
     std::array<uint8_t,2> response = {0};
     boost::system::error_code ec;
 
-    std::cerr << "\n[NETWORK] Waiting for UDP response...\n";
+    std::cerr << "Waiting for UDP response\n";
     
     size_t length = socket_.receive_from(
         boost::asio::buffer(response, sizeof(response)), 
@@ -143,13 +130,8 @@ std::array<uint8_t, 2> UdpClient::receive_udp_response() {
         ec
     );
 
-    std::cerr << "  Received: " << length << " bytes\n"
-              << "  Data: 0x" << std::hex 
-              << static_cast<int>(response[0]) << " "
-              << static_cast<int>(response[1]) << std::dec << "\n";
-
     if (ec) {
-        std::cerr << "  Receive error: " << ec.message() << "\n";
+        std::cout << "  Receive error: " << ec.message() << "\n";
     }
     return response;
 }
