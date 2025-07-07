@@ -3,14 +3,14 @@ version: '3.8'
 networks:
   telemetry_net:
     driver: bridge
-    
+
 services:
   builder:
     image: telemetry-system
     build: .
     volumes:
-      - ./:/workspace:rw  # Монтируем весь проект
-      - ./bin:/output  # Отдельный том для выходных бинарников
+      - ./:/workspace:rw 
+      - ./bin:/output
     command: /usr/local/bin/build.sh
     profiles: ["build"]
     networks:
