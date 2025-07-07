@@ -6,7 +6,7 @@ networks:
 
 services:
   builder:
-    image: telemetry-system
+    image:  ${DOCKER_USERNAME}/telemetry-system:v1.0 
     build: .
     volumes:
       - ./:/workspace:rw 

@@ -14,6 +14,7 @@ file(DOWNLOAD
 
 # Добавляем путь к скачанному файлу
 include_directories(${CMAKE_BINARY_DIR})
+enable_testing()
 
 add_subdirectory(common)
 add_subdirectory(server)

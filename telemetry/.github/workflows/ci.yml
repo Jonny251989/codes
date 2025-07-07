@@ -1,0 +1,43 @@
+name: CursedWords Bot CI/CD
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image_version: ["1.0"]
+    container:
+      image: docker.io/jonnyrembo/telemetry-system:v1.0
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        COMMON_IMAGES_VERSION: "1.0"
+        SOURCE_DIR: ${{ github.workspace }}
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - ${{ github.workspace }}:/github/workspace  # Монтируем в стандартный путь
+      options: --privileged
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build project
+        run: |
+          ./build.sh
+
+      - name: Run all unit tests
+        run: |
+          cd build
+          ctest --output-on-failure --verbose
+
+      - name: Start infrastructure and run functional tests
+        run: |
+          ./functional_tests_enviroment.sh up
+          ./docker-compose-run-tests.sh
+          ./functional_tests_enviroment.sh down
