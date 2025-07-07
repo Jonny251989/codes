@@ -10,7 +10,7 @@ uint64_t pack_data(const TelemetryData& data) {
 std::optional<TelemetryData> unpack_data(uint64_t packet) {
 
     if (sizeof(packet) != 8) {
-        std::cerr << "Invalid packet size: expected 8 bytes, got "
+        std::cout << "Invalid packet size: expected 8 bytes, got "
                   << sizeof(packet) << " bytes\n";
         return std::nullopt;
     }

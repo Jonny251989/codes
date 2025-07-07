@@ -9,12 +9,10 @@
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "C");
     try {
-        // 1. Проверка аргументов командной строки
         if (argc != 3) {
             std::cerr << "Usage: " << argv[0] << " <host> <port>\n";
             return 1;
         }
-
         UdpClient client(argv[1], argv[2]);
         client.run();
         

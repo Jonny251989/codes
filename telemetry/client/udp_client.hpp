@@ -11,18 +11,15 @@
 
 class UdpClient {
 public:
-    // Конструктор с аргументами командной строки
     UdpClient(const char* host, const char* port);
-    
-    // Основной метод запуска клиента
     void run();
-
-
+    
 private:
-    // Отправка UDP-пакета
     void send_udp_packet(uint64_t data);
+
     template <typename T>
     void validate_input(T& value_ref, T min, T max, const std::string& field);
+
     TelemetryData input_telemetry_data();
     void analyse_server_response(std::array<uint8_t, 2> response);
     std::array<uint8_t, 2> receive_udp_response();
