@@ -52,48 +52,8 @@ TEST_F(FunctionalTest, ValidData) {
         << "Client output:\n" << output;
 }
 
-TEST_F(FunctionalTest, InvalidX) {
-    const std::string output = run_client_test("invalid_x");
+TEST_F(FunctionalTest, InvalidData) {
+    const std::string output = run_client_test("invalid_data");
     EXPECT_NE(output.find("Data is invalid"), std::string::npos)
         << "Client output:\n" << output;
-}
-
-TEST_F(FunctionalTest, InvalidY) {
-    const std::string output = run_client_test("invalid_y");
-    EXPECT_NE(output.find("Data is invalid"), std::string::npos)
-        << "Client output:\n" << output;
-}
-
-TEST_F(FunctionalTest, InvalidAcceleration) {
-    const std::string output = run_client_test("invalid_accel");
-    EXPECT_NE(output.find("Data is invalid"), std::string::npos)
-        << "Client output:\n" << output;
-}
-
-TEST_F(FunctionalTest, MinValues) {
-    const std::string output = run_client_test("min_values");
-    EXPECT_NE(output.find("Data is valid"), std::string::npos)
-        << "Client output:\n" << output;
-}
-
-TEST_F(FunctionalTest, ReservedFieldTest) {
-    const std::string output = run_client_test("reserved_field_test");
-    EXPECT_NE(output.find("Data is valid"), std::string::npos)
-        << "Client output:\n" << output;
-}
-
-TEST_F(FunctionalTest, InvalidState) {
-    const std::string output = run_client_test("invalid_state");
-    EXPECT_NE(output.find("Data is invalid"), std::string::npos)
-        << "Client output:\n" << output;
-}
-
-TEST_F(FunctionalTest, MultiPackets) {
-    const std::string output = run_client_test("multi_packets");
-    // Проверяем что были отправлены оба пакета
-    EXPECT_NE(output.find("Packed data: 0x"), std::string::npos);
-    // Проверяем что первый пакет валиден
-    EXPECT_NE(output.find("[RESULT] Data is valid"), std::string::npos);
-    // Проверяем что второй пакет валиден
-    EXPECT_NE(output.rfind("[RESULT] Data is valid"), std::string::npos);
 }

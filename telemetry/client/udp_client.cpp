@@ -34,9 +34,7 @@ void UdpClient::validate_input(T& value_ref, T min, T max, const std::string& fi
         
     while (true) {
         std::cout << "Enter " << field << " [" << min << "-" << max << "]: ";
-        
         std::string input_line;
-        
         if (!std::getline(std::cin, input_line)) {
             if (std::cin.eof()) {
                 std::cerr << "Error: End of input reached. Exiting.\n";
@@ -66,34 +64,27 @@ void UdpClient::validate_input(T& value_ref, T min, T max, const std::string& fi
 
 TelemetryData UdpClient::input_telemetry_data() {
     TelemetryData data{};
-    int tmp_int; // Используем int для всех целочисленных значений
+    int tmp_int; 
     float tmp_float;
     
-    // Для X (0-63)
     validate_input(tmp_int, 0, 63, "X");
     data.x = tmp_int;
     
-    // Для Y (-32-31)
     validate_input(tmp_int, -32, 31, "Y");
     data.y = tmp_int + 32;
     
-    // Для Velocity (0-255)
     validate_input(tmp_int, 0, 255, "Velocity");
     data.velocity = tmp_int;
     
-    // Для Mode (0-3)
     validate_input(tmp_int, 0, 3, "Mode");
     data.mode = tmp_int;
     
-    // Для State (0-3)
     validate_input(tmp_int, 0, 3, "State");
     data.state = tmp_int;
     
-    // Для Acceleration
     validate_input(tmp_float, -12.7f, 12.8f, "Acceleration");
     data.acceleration = static_cast<uint8_t>((tmp_float + 12.7f) * 10);
     
-    // Для Power (0-130)
     validate_input(tmp_int, 0, 130, "Power");
     data.power = tmp_int;
     
@@ -104,15 +95,9 @@ void UdpClient::send_udp_packet(uint64_t data) {
     if (endpoints_.empty()) {
         throw std::runtime_error("No endpoints available for sending");
     }
-    uint64_t net_data = host_to_network_uint64(data);
+    uint64_t net_data = host_to_network<uint64_t>(std::move(data));
     
-    // Получаем endpoint из результата резолвинга
     const auto endpoint = endpoints_.begin()->endpoint();
-    
-    std::cerr << "\n[NETWORK] Sending UDP packet to "
-              << endpoint.address().to_string() << ":" << endpoint.port() << "\n"
-              << "  Size: " << sizeof(net_data) << " bytes\n"
-              << "  Data (network order): ";
     
     const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(&net_data);
     for (size_t i = 0; i < sizeof(net_data); ++i) {
@@ -125,21 +110,25 @@ void UdpClient::send_udp_packet(uint64_t data) {
 }
 
 void UdpClient::analyse_server_response(std::array<uint8_t, 2> response) {
-    if (response[0] == 0) {
-        if (response[1] == 1) {
-            std::cout << "  [RESULT] Data is valid\n";
-        } else if (response[1] == 0) {
-            std::cout << "  [RESULT] Data is invalid\n";
-        } else {
-            std::cout << "  [ERROR] Unknown status code: " 
-                      << static_cast<int>(response[1]) << "\n";
-        }
-    } else {
-        std::cout << "  [ERROR] Invalid header byte: " 
-                  << static_cast<int>(response[0]) << "\n";
+    switch (response[0]) {
+        case 0: // Status code 0
+            if (response[1])  std::cout << "Data is valid";
+            else std::cout << "Data is invalid";  
+            break;
+            
+        case 1: // Status code 1
+            std::cout << "Unpack_failed or invalid packet size\n";
+            break;
+            
+        case 2: // All other status codes
+            std::cout << "Server error\n";
+            break;
+
+        default: 
+            std::cout << "Error\n";
+            break;
     }
 }
-
 
 std::array<uint8_t, 2> UdpClient::receive_udp_response() {
     std::array<uint8_t,2> response = {0};

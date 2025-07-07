@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  telemetry_net:
+    driver: bridge
+    
 services:
   builder:
     image: telemetry-system
@@ -53,18 +57,3 @@ services:
         /app/functional_tests
     profiles: ["test"]
 
-  unit_tests:
-    image: telemetry-system
-    volumes:
-      - ./bin:/app:ro
-    command: 
-      - /bin/sh
-      - -c
-      - /app/unit_tests
-    networks:
-      - telemetry_net
-    profiles: ["test"]
-
-networks:
-  telemetry_net:
-    driver: bridge

@@ -14,7 +14,7 @@ public:
 
 private:
     void handle_receive(const boost::system::error_code& error, size_t bytes);
-    void handle_send(boost::asio::ip::udp::endpoint endpoint, char response[2]);
+    void send_response(const std::array<uint8_t, 2>& response);
 
     boost::asio::ip::udp::socket socket_;
     boost::asio::ip::udp::endpoint remote_endpoint_;

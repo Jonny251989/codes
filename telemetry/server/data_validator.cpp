@@ -12,8 +12,6 @@ DataValidator::DataValidator(const std::string& config_path) {
         json config;
         f >> config;
         
-        
-        // Извлекаем первый элемент массива как объект с ограничениями
         limits = config["limits"][0];
         
         std::cout << "Loaded validation limits:\n";
@@ -28,15 +26,9 @@ DataValidator::DataValidator(const std::string& config_path) {
 bool DataValidator::validate(const TelemetryData& data) {
     bool valid = true;
     
-    // Преобразование значений
     int original_y = static_cast<int>(data.y) - 32;
     float original_acceleration = static_cast<float>(data.acceleration) / 10.0f - 12.7f;
     
-    // Вывод преобразованных значений
-    std::cout << "  Converted values for validation:\n"
-              << "    Y: " << original_y << "\n"
-              << "    Acceleration: " << original_acceleration << "\n";
-
     auto check = [&](auto value, const std::string& field) {
 
         using ValueType = decltype(value);
@@ -45,13 +37,13 @@ bool DataValidator::validate(const TelemetryData& data) {
             const ValueType max = limits[field][1].get<ValueType>();
 
             if (value < min || value > max) {
-                std::cout << "  ! [ERROR] " << field << " out of range: " 
+                std::cout << " Error " << field << " out of range: " 
                           << std::fixed << std::setprecision(2) << value
                           << " not in [" << min << ", " << max << "]\n";
                 return false;
             }
         } catch (const std::exception& e) {
-            std::cout << "  ! [ERROR] Type mismatch for field '" << field << "': " << e.what() << "\n";
+            std::cout << "  ! Error: type mismatch for field '" << field << "': " << e.what() << "\n";
             return false;
         }
         return true;
