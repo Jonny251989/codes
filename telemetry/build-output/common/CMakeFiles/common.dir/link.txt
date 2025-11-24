@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcommon.a CMakeFiles/common.dir/protocol.cpp.o CMakeFiles/common.dir/network_utils.cpp.o
+/usr/bin/ranlib libcommon.a
