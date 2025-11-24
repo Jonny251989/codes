@@ -1,137 +1,122 @@
 #include <gtest/gtest.h>
-#include <fstream>
-#include <cstdlib>
 #include <string>
-#include <thread>
-#include <chrono>
-#include <sys/wait.h>
-#include <boost/asio.hpp>
+#include <sstream>
 
-class FunctionalTest : public ::testing::Test {
+// Включаем заголовочные файлы проекта
+#include "../../server/command_processor.hpp"
+#include "../../server/session_manager.hpp"
+#include "../../common/protocol.hpp"
+
+// Тесты для CommandProcessor
+class CommandProcessorTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        // Start server in background
-        server_pid = start_server();
-        wait_for_server("localhost", 8080);
-    }
-
-    void TearDown() override {
-        stop_server();
-    }
-
-    pid_t start_server() {
-        pid_t pid = fork();
-        if (pid == 0) {
-            // Child process - start server
-            execl("../../build/telemetry_server", "telemetry_server", "8080", nullptr);
-            perror("execl");
-            exit(1);
-        }
-        return pid;
-    }
-
-    void stop_server() {
-        if (server_pid > 0) {
-            kill(server_pid, SIGTERM);
-            waitpid(server_pid, nullptr, 0);
-        }
-    }
-
-    void wait_for_server(const std::string& host, uint16_t port) {
-        using namespace boost::asio;
-        using ip::tcp;
-        
-        io_context io;
-        tcp::resolver resolver(io);
-        
-        for (int i = 0; i < 30; ++i) {
-            try {
-                tcp::resolver::results_type endpoints = resolver.resolve(host, std::to_string(port));
-                tcp::socket socket(io);
-                connect(socket, endpoints);
-                return;
-            } catch (const boost::system::system_error& e) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-        }
-        throw std::runtime_error("Server not available after 30 attempts");
-    }
-
-    std::string run_tcp_test(const std::string& message) {
-        std::string command = "../../build/tcp_client 127.0.0.1 8080 \"" + message + "\"";
-        return execute_command(command);
-    }
-
-    std::string run_udp_test(const std::string& message) {
-        std::string command = "../../build/udp_client 127.0.0.1 8080 \"" + message + "\"";
-        return execute_command(command);
-    }
-
-    std::string execute_command(const std::string& command) {
-        std::array<char, 128> buffer;
-        std::string result;
-        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
-        
-        if (!pipe) {
-            throw std::runtime_error("popen() failed!");
-        }
-        
-        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-            result += buffer.data();
-        }
-        
-        if (!result.empty() && result[result.length()-1] == '\n') {
-            result.erase(result.length()-1);
-        }
-        
-        return result;
-    }
-
-private:
-    pid_t server_pid;
+    SessionManager session_manager;
+    CommandProcessor command_processor{session_manager};
 };
 
-TEST_F(FunctionalTest, TcpEcho) {
-    const std::string message = "Hello TCP World";
-    std::string response = run_tcp_test(message);
-    EXPECT_EQ(response, message);
+TEST_F(CommandProcessorTest, EchoNonCommand) {
+    std::string result = command_processor.process_command("hello");
+    EXPECT_EQ(result, "hello");
 }
 
-TEST_F(FunctionalTest, UdpEcho) {
-    const std::string message = "Hello UDP World";
-    std::string response = run_udp_test(message);
-    EXPECT_EQ(response, message);
+TEST_F(CommandProcessorTest, TimeCommand) {
+    std::string result = command_processor.process_command("/time");
+    // Проверяем формат времени: YYYY-MM-DD HH:MM:SS
+    EXPECT_EQ(result.size(), 19);
+    EXPECT_EQ(result[4], '-');
+    EXPECT_EQ(result[7], '-');
+    EXPECT_EQ(result[10], ' ');
+    EXPECT_EQ(result[13], ':');
+    EXPECT_EQ(result[16], ':');
 }
 
-TEST_F(FunctionalTest, TcpTimeCommand) {
-    std::string response = run_tcp_test("/time");
-    EXPECT_GE(response.size(), 19);
-    EXPECT_EQ(response[4], '-');
-    EXPECT_EQ(response[7], '-');
-}
-
-TEST_F(FunctionalTest, UdpTimeCommand) {
-    std::string response = run_udp_test("/time");
-    EXPECT_GE(response.size(), 19);
-    EXPECT_EQ(response[4], '-');
-    EXPECT_EQ(response[7], '-');
-}
-
-TEST_F(FunctionalTest, TcpStatsCommand) {
-    run_tcp_test("test1");
-    run_tcp_test("test2");
+TEST_F(CommandProcessorTest, StatsCommand) {
+    // Добавляем соединение для теста статистики
+    session_manager.add_connection(1);
     
-    std::string response = run_tcp_test("/stats");
-    EXPECT_NE(response.find("Total connections:"), std::string::npos);
-    EXPECT_NE(response.find("Current connections:"), std::string::npos);
+    std::string result = command_processor.process_command("/stats");
+    EXPECT_NE(result.find("Total connections"), std::string::npos);
+    EXPECT_NE(result.find("Current connections"), std::string::npos);
+    
+    session_manager.remove_connection(1);
 }
 
-TEST_F(FunctionalTest, TcpUnknownCommand) {
-    std::string response = run_tcp_test("/unknown");
-    EXPECT_EQ(response, "ERROR: Unknown command");
+TEST_F(CommandProcessorTest, ShutdownCommand) {
+    std::string result = command_processor.process_command("/shutdown");
+    EXPECT_EQ(result, "/SHUTDOWN_ACK");
 }
 
-TEST_F(FunctionalTest, UdpUnknownCommand) {
-    std::string response = run_udp_test("/unknown");
-    EXPECT_EQ(response, "ERROR: Unknown command");
+TEST_F(CommandProcessorTest, UnknownCommand) {
+    std::string result = command_processor.process_command("/unknown");
+    EXPECT_EQ(result, "ERROR: Unknown command");
+}
+
+TEST_F(CommandProcessorTest, EmptyMessage) {
+    std::string result = command_processor.process_command("");
+    EXPECT_EQ(result, "");
+}
+
+// Тесты для SessionManager
+class SessionManagerTest : public ::testing::Test {
+protected:
+    SessionManager session_manager;
+};
+
+TEST_F(SessionManagerTest, InitialStats) {
+    ServerStats stats = session_manager.get_stats();
+    EXPECT_EQ(stats.total_connections, 0);
+    EXPECT_EQ(stats.current_connections, 0);
+}
+
+TEST_F(SessionManagerTest, AddConnection) {
+    session_manager.add_connection(1);
+    ServerStats stats = session_manager.get_stats();
+    EXPECT_EQ(stats.total_connections, 1);
+    EXPECT_EQ(stats.current_connections, 1);
+    
+    session_manager.remove_connection(1);
+}
+
+TEST_F(SessionManagerTest, RemoveConnection) {
+    session_manager.add_connection(1);
+    session_manager.add_connection(2);
+    
+    session_manager.remove_connection(1);
+    ServerStats stats = session_manager.get_stats();
+    EXPECT_EQ(stats.total_connections, 2);  // total не уменьшается
+    EXPECT_EQ(stats.current_connections, 1); // current уменьшается
+    
+    session_manager.remove_connection(2);
+}
+
+TEST_F(SessionManagerTest, IncrementTotalConnections) {
+    session_manager.increment_total_connections();
+    ServerStats stats = session_manager.get_stats();
+    EXPECT_EQ(stats.total_connections, 1);
+    EXPECT_EQ(stats.current_connections, 0);
+}
+
+TEST_F(SessionManagerTest, MultipleConnections) {
+    session_manager.add_connection(1);
+    session_manager.add_connection(2);
+    session_manager.add_connection(3);
+    
+    ServerStats stats = session_manager.get_stats();
+    EXPECT_EQ(stats.total_connections, 3);
+    EXPECT_EQ(stats.current_connections, 3);
+    
+    session_manager.remove_connection(1);
+    session_manager.remove_connection(2);
+    session_manager.remove_connection(3);
+}
+
+// Тесты для protocol функций
+TEST(ProtocolTest, GetCurrentTimeString) {
+    std::string time_str = get_current_time_string();
+    EXPECT_EQ(time_str.size(), 19);
+    EXPECT_EQ(time_str[4], '-');
+    EXPECT_EQ(time_str[7], '-');
+    EXPECT_EQ(time_str[10], ' ');
+    EXPECT_EQ(time_str[13], ':');
+    EXPECT_EQ(time_str[16], ':');
 }

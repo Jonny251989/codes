@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     int result = RUN_ALL_TESTS();
     
     std::cout << "=========================================" << std::endl;
-    std::cout << "Unit Tests Finished" << std::endl;
+    std::cout << "Unit Tests Completed" << std::endl;
     std::cout << "=========================================" << std::endl;
     
     return result;
