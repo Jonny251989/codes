@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/telemetry_server.dir/main.cpp.o CMakeFiles/telemetry_server.dir/udp_server.cpp.o CMakeFiles/telemetry_server.dir/data_validator.cpp.o -o telemetry_server  ../common/libcommon.a /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0 
